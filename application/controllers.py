@@ -3,6 +3,9 @@ from flask import current_app as app
 from .models import *
 
 
+@app.route('/', methods=['GET','POST'])
+def Welcome():
+    return render_template('welcome.html')
 
 @app.route('/userlogin', methods=['GET','POST'])
 def user_login():
