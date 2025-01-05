@@ -40,7 +40,7 @@ def user_register():
             new_user = User(username=u_name,password=pwd,fullname=fn,qualification=qfn,dob=dob)
             db.session.add(new_user)
             db.session.commit()
-            return redirect('/userlogin')
+            return render_template('user_dashboard.html', u_name = u_name)
 
     return render_template('register.html')
 
