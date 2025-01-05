@@ -14,6 +14,7 @@ class User(db.Model):
     fullname = db.Column(db.String(), nullable=False)
     qualification = db.Column(db.String(), nullable=False)
     dob = db.Column(db.String(),nullable = False)
+    type = db.Column(db.String(), default="user")
     scores = db.relationship('Score', backref='user')
 
 class Subject(db.Model):

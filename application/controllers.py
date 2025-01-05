@@ -17,7 +17,10 @@ def user_login():
         above_user = User.query.filter_by(username=u_name).first()
         if above_user:
             if above_user.password == pwd:
-                return render_template('user_dashboard.html', u_name = u_name)
+                if above_user.type == "admin":
+                    return redirect('/admin')
+                else:
+                    return render_template('user_dashboard.html', u_name = u_name)
             else:
                 return "Incorrect Password!"
         else:
