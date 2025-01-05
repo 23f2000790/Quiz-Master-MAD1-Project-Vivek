@@ -34,15 +34,17 @@
                   <span>Welcome Admin</span>
                 </div>
               </nav>
-              <div class="text-center">
-                <a href="/addsubject" class="btn btn-primary" style="position: relative;; margin-top: 10px;">Add Subject</a>
-              </div>
-              {% if sub %}
+              {% if sub|length == 0 %}
+
+              {% else %}
               <div class="container">
                 <div class="row">
-
                   <div class="col-md-6">
-                    <h2 class="text-center mt-2">MAD 1</h2>
+                    <ul>
+                      {% for name in sub %}
+                      <li><h2 class="text-center mt-2">{{name}}</h2></li>
+                      {% endfor %}
+                    </ul>
                     <div class="table-div">
                       <table class="table table-hover">
                         <thead>
@@ -75,6 +77,10 @@
                     </div>
                   </div>
                 </div>
+              </div>
+              {% endif %}
+              <div class="text-center">
+                <a href="/addsubject" class="btn btn-primary" style="position: relative;; margin-top: 10px;">Add Subject</a>
               </div>
         </div>
     </div>

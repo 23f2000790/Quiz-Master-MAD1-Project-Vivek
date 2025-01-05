@@ -84,6 +84,12 @@ def add_subject():
         return "Subject Already Exists :("
     else:
         subject = Subject(name=name,description=desc)
-        db.session.add(subject)
-        db.session.commit()
-        return redirect('/admin')
+        try:
+            db.session.add(subject)
+            db.session.commit()  # Make sure to commit after adding
+        except Exception as e:
+            db.session.rollback()  # Rollback in case of error
+            print(f"Error: {e}")
+    subjects = Subject.query.all()
+    sub = [subj.name for subj in subjects]
+    return render_template('admin_dashboard.html',sub=sub)
