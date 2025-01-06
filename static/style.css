@@ -7,7 +7,8 @@
 #canvas {
     width: 80%;
     margin: auto;
-    height: 694px;
+    min-height: 694px;
+    position: relative;
 }
 #form-body {
     width: 396px;
@@ -45,5 +46,5 @@
     height: auto !important;
     border-radius: 10px; 
     padding: 15px; 
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5); 
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.477); 
 }

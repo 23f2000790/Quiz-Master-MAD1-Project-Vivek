@@ -23,7 +23,7 @@
                         <a class="nav-link active" aria-current="page" href="#">Summary</a>
                       </li>
                       <li class="nav-item">
-                        <a class="nav-link active" aria-current="page" href="#">Logout</a>
+                        <a class="nav-link active" aria-current="page" href="/userlogin">Logout</a>
                       </li>
                     </ul>
                     <form class="d-flex" role="search">
@@ -36,6 +36,7 @@
               </nav>
               
               <div class="container">
+                {% if sub %}
                 <div class="row">
                   {% for name in sub %}
                   <div class="col-md-6">                
@@ -58,24 +59,23 @@
                               <button type="button" class="btn btn-danger">Delete</button>
                             </td>
                           </tr>
-                          <tr>
-                            <td>css</td>
-                            <td>10</td>
-                            <td>
-                              <button type="button" class="btn btn-secondary">Edit</button>
-                              <button type="button" class="btn btn-danger">Delete</button>
-                            </td>
-                          </tr>
                         </tbody>
                       </table>
-                      <button type="button" class="btn btn-success float-end">+ Add chapter</button>
+                      <div class="text-center">
+                        <a href= '/addchapter' class="btn btn-success float-end">Add Chapter</a>
+                      </div>
                     </div>
                   </div>
                   {% endfor %}
                 </div>
+                {% else %}
+                  <div class="text-center">
+                    <p>No subjects available. Please add a new subject.</p>
+                  </div>
+                {% endif %}
               </div>
               <div class="text-center">
-                <a href="/addsubject" class="btn btn-primary" style="position: relative;; margin-top: 10px;">Add Subject</a>
+                <a href="/admin/addsubject" class="btn btn-primary" style="position: relative;; margin-top: 10px;">Add Subject</a>
               </div>
         </div>
     </div>

@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect
+from flask import Flask, render_template, request, redirect, url_for
 from flask import current_app as app
 from .models import *
 
@@ -67,29 +67,43 @@ def user_scores():
 
 @app.route('/admin',methods=['GET','POST'])
 def admin_dashboard():
-    return render_template('admin_dashboard.html')
+    subjects = Subject.query.all()
+    if subjects:
+        sub = [subj.name for subj in subjects]
+    else:
+        sub = []
+    return render_template('admin_dashboard.html',sub=sub)
 
-@app.route('/addsubject')
+@app.route('/admin/addsubject')
 def addsubject():
     return render_template('add_subject.html')
 
-@app.route('/addsubject2',methods=['GET','POST'])
+@app.route('/admin/addsubject2',methods=['GET','POST'])
 def add_subject():
-    if request.form.get('submit') == "Cancel":
-        return redirect('/admin')
-    name = request.form.get("name")
-    desc = request.form.get("dsc")
-    sub = Subject.query.filter_by(name=name).first()
-    if sub:
-        return "Subject Already Exists :("
-    else:
-        subject = Subject(name=name,description=desc)
-        try:
-            db.session.add(subject)
-            db.session.commit()  # Make sure to commit after adding
-        except Exception as e:
-            db.session.rollback()  # Rollback in case of error
-            print(f"Error: {e}")
-    subjects = Subject.query.all()
-    sub = [subj.name for subj in subjects]
-    return render_template('admin_dashboard.html',sub=sub)
+    if request.method == "POST":
+        if request.form.get('submit') == "Cancel":
+            subjects = Subject.query.all()
+            if subjects:
+                sub = [subj.name for subj in subjects]
+            else:
+                sub = []
+            return render_template('admin_dashboard.html', sub=sub)
+        elif request.form.get('submit') == "Add":
+            name = request.form.get("name")
+            desc = request.form.get("dsc")
+            sub = Subject.query.filter_by(name=name).first()
+            if not name:
+                return "Please give name to the Subject before Adding!"
+            if sub:
+                return "Subject Already Exists :("
+            else:
+                subject = Subject(name=name,description=desc)
+                db.session.add(subject)
+                db.session.commit() 
+            subjects = Subject.query.all()
+            sub = [subj.name for subj in subjects]
+            return render_template('admin_dashboard.html',sub=sub)
+    return redirect('/admin')
+
+
+
