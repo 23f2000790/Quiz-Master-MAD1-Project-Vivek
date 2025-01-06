@@ -69,25 +69,23 @@ def user_scores():
 def admin_dashboard():
     subjects = Subject.query.all()
     if subjects:
-        sub = [subj.name for subj in subjects]
+        return render_template('admin_dashboard.html',subjects=subjects)
     else:
-        sub = []
-    return render_template('admin_dashboard.html',sub=sub)
+        return render_template('admin_dashboard.html',subjects=[])
 
-@app.route('/admin/addsubject')
+@app.route('/addsubject')
 def addsubject():
     return render_template('add_subject.html')
 
-@app.route('/admin/addsubject2',methods=['GET','POST'])
+@app.route('/addsubject2',methods=['GET','POST'])
 def add_subject():
     if request.method == "POST":
         if request.form.get('submit') == "Cancel":
             subjects = Subject.query.all()
             if subjects:
-                sub = [subj.name for subj in subjects]
+                return render_template('admin_dashboard.html',subjects=subjects)
             else:
-                sub = []
-            return render_template('admin_dashboard.html', sub=sub)
+                return render_template('admin_dashboard.html',subjects=[])
         elif request.form.get('submit') == "Add":
             name = request.form.get("name")
             desc = request.form.get("dsc")
@@ -101,9 +99,48 @@ def add_subject():
                 db.session.add(subject)
                 db.session.commit() 
             subjects = Subject.query.all()
-            sub = [subj.name for subj in subjects]
-            return render_template('admin_dashboard.html',sub=sub)
+            return render_template('admin_dashboard.html',subjects=subjects)
     return redirect('/admin')
 
+@app.route('/addchapter/<int:subject_id>',methods=['GET'])
+def addchapter(subject_id):
+    subject = Subject.query.get_or_404(subject_id)
+    return render_template('add_chapter.html',subject=subject)
+
+@app.route('/addchapter2/<int:subject_id>',methods=['POST'])
+def add_chapter(subject_id):
+    subject = Subject.query.get_or_404(subject_id)
+    if request.form.get('submit') == "Cancel":
+        return redirect(url_for('admin_dashboard'))
+    name = request.form.get('name')
+    description = request.form.get('description')
+    new_chapter = Chapter(name=name,description=description,subject_id=subject.id)
+    db.session.add(new_chapter)
+    db.session.commit()
+    return redirect(url_for('admin_dashboard'))
+
+@app.route('/editchapter/<int:chapter_id>',methods=['GET','POST'])
+def editchapter(chapter_id):
+    chapter = Chapter.query.get_or_404(chapter_id)
+    return render_template('edit_chapter.html',chapter=chapter)
+
+@app.route('/editchapter2/<int:chapter_id>',methods=['POST'])
+def edit_chapter(chapter_id):
+    chapter = Chapter.query.get_or_404(chapter_id)
+    if request.form.get('submit') == "Cancel":
+        return redirect(url_for('admin_dashboard'))
+    name = request.form.get('name')
+    description = request.form.get('description')
+    chapter.name = name
+    chapter.description = description
+    db.session.commit()
+    return redirect(url_for('admin_dashboard'))
+
+@app.route('/deletechapter/<int:chapter_id>',methods=['GET','POST'])
+def deletechapter(chapter_id):
+    chapter = Chapter.query.get_or_404(chapter_id)
+    db.session.delete(chapter)
+    db.session.commit()
+    return redirect(url_for('admin_dashboard'))
 
 
