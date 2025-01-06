@@ -34,11 +34,11 @@
                   <span>Welcome Admin</span>
                 </div>
               </nav>
+              {% for name in sub %}
               <div class="container">
                 <div class="row">
-                  {% for name in sub %}
                   <div class="col-md-6">                
-                    <h2 class="text-center mt-2">{{name}}</h2>
+                      <h2 class="text-center mt-2">{{name}}</h2>
                     <div class="table-div">
                       <table class="table table-hover">
                         <thead>
@@ -70,12 +70,9 @@
                       <button type="button" class="btn btn-success float-end">+ Add chapter</button>
                     </div>
                   </div>
-                  {% if forloop.counter|divisibleby:2 and not forloop.last %}
-                  </div>
-                  <div class="row"></div>
-                  {% endif %}
-                {% endfor %}
+                </div>
               </div>
+              {% endfor %}
               <div class="text-center">
                 <a href="/addsubject" class="btn btn-primary" style="position: relative;; margin-top: 10px;">Add Subject</a>
               </div>
