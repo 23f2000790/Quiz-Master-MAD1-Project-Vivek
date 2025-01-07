@@ -143,4 +143,42 @@ def deletechapter(chapter_id):
     db.session.commit()
     return redirect(url_for('admin_dashboard'))
 
+@app.route('/addquiz')
+def addquiz():
+    return render_template('add_quiz.html')
+
+@app.route('/quizmantemp')
+def quizmantemp():
+    quizes = Quiz.query.all()
+    if quizes:
+        return render_template('quiz_management.html',quizes=quizes)
+    else:
+        return render_template('quiz_management.html',quizes=[])
+
+@app.route('/quizman',methods=['GET','POST'])
+def quizman():
+    if request.method == "POST":
+        if request.form.get('submit') == "Cancel":
+            quizes = Quiz.query.all()
+            if quizes:
+                return render_template('quiz_management.html',quizes=quizes)
+            else:
+                return render_template('quiz_management.html',quizes=[])
+        chapter_id = request.form.get('chapter_id')
+        date = request.form.get('date')
+        time = request.form.get('time')
+        quiz = Quiz.query.filter_by(chapter_id=chapter_id).first()
+        if not chapter_id:
+            return "Please give id to the Chapter before Adding!"
+        if  quiz:
+            return "Chapter Already Exists :("
+        else:
+            quiz2 = Quiz(chapter_id=chapter_id,date=date,time=time)
+            db.session.add(quiz2)
+            db.session.commit() 
+            quizes = Quiz.query.all()
+            return render_template('quiz_management.html',quizes=quizes)
+    return redirect('quiz_management.html')
+
+
 
