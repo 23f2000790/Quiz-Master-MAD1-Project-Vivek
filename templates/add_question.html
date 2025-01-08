@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Add Question</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+</head>
+<body>
+    <div id = "main">
+        <div id = "canvas">
+            <div id = "form-body">
+                <h1 id="centre-text">New Question</h1>
+                <form action="/addquestion2" method="post">
+                    <div class="mb-3">
+                        <label for="id" class="form-label">Chapter id</label>
+                        <input type="text" class="form-control" id="id" name="id">
+                    </div>
+                    <div class="mb-3">
+                        <label for="title" class="form-label">Question Title</label>
+                        <input type="text" class="form-control" id="title" name="title">
+                    </div>
+                    <div class="mb-3">
+                        <label for="qst" class="form-label">Question Statement</label>
+                        <input type="text" class="form-control" id="qst" name="qst">
+                    </div>
+                    <div class="mb-3">
+                        <label for="o1" class="form-label">Option 1</label>
+                        <input type="text" class="form-control" id="o1" name="o1">
+                    </div>
+                    <div class="mb-3">
+                        <label for="o2" class="form-label">Option 2</label>
+                        <input type="text" class="form-control" id="o2" name="o2">
+                    </div>
+                    <div class="mb-3">
+                        <label for="o3" class="form-label">Option 3</label>
+                        <input type="text" class="form-control" id="o3" name="o3">
+                    </div>
+                    <div class="mb-3">
+                        <label for="o4" class="form-label">Option 4</label>
+                        <input type="text" class="form-control" id="o4" name="o4">
+                    </div>
+                    <div class="mb-3">
+                        <label for="co" class="form-label">Correct Option</label>
+                        <input type="text" class="form-control" id="co" name="co">
+                    </div>
+                    <div class="text-center">
+                        <input type="submit" class="btn btn-primary" name="submit" value="Add">
+                        <input type="submit" class="btn btn-danger" name="submit" value="Cancel">
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

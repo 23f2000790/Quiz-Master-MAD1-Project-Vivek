@@ -1,7 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for
 from flask import current_app as app
 from .models import *
-
+from datetime import datetime
 
 @app.route('/', methods=['GET','POST'])
 def Welcome():
@@ -36,11 +36,12 @@ def user_register():
         fn = request.form.get("fullname")
         qfn = request.form.get("qualification")
         dob = request.form.get("dob")
+        dobcon = datetime.strptime(dob, '%Y-%m-%d').date()
         above_user = User.query.filter_by(username=u_name).first()
         if above_user:
             return "User Already Exists :("
         else:
-            new_user = User(username=u_name,password=pwd,fullname=fn,qualification=qfn,dob=dob)
+            new_user = User(username=u_name,password=pwd,fullname=fn,qualification=qfn,dob=dobcon)
             db.session.add(new_user)
             db.session.commit()
             return render_template('user_dashboard.html', u_name = u_name)
@@ -165,20 +166,41 @@ def quizman():
             else:
                 return render_template('quiz_management.html',quizes=[])
         chapter_id = request.form.get('chapter_id')
+        chapter_name = request.form.get('chapter_name')
         date = request.form.get('date')
         time = request.form.get('time')
+        datecon = datetime.strptime(date, '%Y-%m-%d').date()
         quiz = Quiz.query.filter_by(chapter_id=chapter_id).first()
         if not chapter_id:
             return "Please give id to the Chapter before Adding!"
         if  quiz:
             return "Chapter Already Exists :("
         else:
-            quiz2 = Quiz(chapter_id=chapter_id,date=date,time=time)
+            quiz2 = Quiz(chapter_id=chapter_id,chapter_name=chapter_name,date=datecon,time=time)
             db.session.add(quiz2)
             db.session.commit() 
             quizes = Quiz.query.all()
             return render_template('quiz_management.html',quizes=quizes)
     return redirect('quiz_management.html')
 
+@app.route('/addquestion',methods=['GET'])
+def addquestion():
+    return render_template('add_question.html')
 
+@app.route('/addquestion2',methods=['POST'])
+def add_question():
+    if request.form.get('submit') == "Cancel":
+        return redirect(url_for('quizmantemp'))
+    id = request.form.get('id')
+    title = request.form.get('title')
+    qst = request.form.get('qst')
+    o1 = request.form.get('o1')
+    o2 = request.form.get('o2')
+    o3 = request.form.get('o3')
+    o4 = request.form.get('o4')
+    co = request.form.get('co')
+    new_question = Question(quiz_id=id,title=title,question_statement=qst,option1=o1,option2=o2,option3=o3,option4=o4,correct_option=co)
+    db.session.add(new_question)
+    db.session.commit()
+    return redirect(url_for('quizmantemp'))
 
