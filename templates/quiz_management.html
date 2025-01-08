@@ -54,12 +54,12 @@
                         <tbody>
                           {% for question in quiz.questions %}
                             <tr>
-                              <td>{{ question.question_id }}</td>
+                              <td>{{ loop.index }}</td>  <!-- This gives you the increasing numbering -->
                               <td>{{ question.title }}</td>
                               <td>
                                 <div class="text-center">
-                                  <a href= '/editquestion/{{question.id}}' class="btn btn-secondary">Edit</a>
-                                  <a href= '/deletequestion/{{question.id}}' class="btn btn-danger">Delete</a>
+                                  <a href='/editquestion/{{question.id}}' class="btn btn-secondary">Edit</a>
+                                  <a href='/deletequestion/{{question.id}}' class="btn btn-danger">Delete</a>
                                 </div>
                               </td>
                             </tr>

@@ -203,7 +203,7 @@ def add_question(quiz_id):
         idd = Question.query.filter_by(question_id=id).first()
         if not id:
                 return "Please give ID to the Question before Adding!"
-        if idd:
+        if idd and Question.quiz_id != quiz_id:
             return "Subject Already Exists :("
         else:
             new_question = Question(quiz_id=quiz_id,question_id=id,title=title,question_statement=qst,option1=o1,option2=o2,option3=o3,option4=o4,correct_option=co)
