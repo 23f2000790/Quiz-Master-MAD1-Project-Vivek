@@ -42,32 +42,23 @@
                       <th scope="col">ID</th>
                       <th scope="col">No. of Questions</th>
                       <th scope="col">Date</th>
-                      <th scope="col">Duration(hh:mm)</th>
+                      <th scope="col">Duration(hh:mm:ss)</th>
                       <th scope="col">Action</th>
                     </tr>
                   </thead>
                   <tbody>
-                    <tr>
-                      <td>1</td>
-                      <td>15</td>
-                      <td>Date</td>
-                      <td>00:30</td>
-                      <td><button type="button" class="btn btn-primary" onclick="location.href='/view'">View</button> <button type="button" class="btn btn-success">Start</button></td>
-                    </tr>
-                    <tr>
-                      <td>2</td>
-                      <td>10</td>
-                      <td>Date</td>
-                      <td>00:45</td>
-                      <td><button type="button" class="btn btn-primary" onclick="location.href='/view'">View</button> <button type="button" class="btn btn-success">Start</button></td>
-                    </tr>
-                    <tr>
-                      <td>3</td>
-                      <td>45</td>
-                      <td>Date</td>
-                      <td>01:30</td>
-                      <td><button type="button" class="btn btn-primary" onclick="location.href='/view'">View</button> <button type="button" class="btn btn-success">Start</button></td>
-                    </tr>
+                    {% for quiz in quizzes %}
+                      <tr>
+                        <td>{{ quiz.id }}</td>
+                        <td>{{ quiz.questions|length }}</td>
+                        <td>{{ quiz.date }}</td>
+                        <td>{{ quiz.time }}</td>
+                        <td>
+                          <button type="button" class="btn btn-primary" onclick="location.href='/view/{{ quiz.id }}'">View</button>
+                          <button type="button" class="btn btn-success" onclick="location.href='/start_quiz/{{ quiz.id }}'">Start</button>
+                        </td>
+                      </tr>
+                    {% endfor %}
                   </tbody>
                 </table>
               </div>

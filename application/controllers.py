@@ -20,7 +20,7 @@ def user_login():
                 if above_user.type == "admin":
                     return redirect('/admin')
                 else:
-                    return render_template('user_dashboard.html', u_name = u_name)
+                    return redirect(url_for('user_dashboard', u_name = u_name))
             else:
                 return "Incorrect Password!"
         else:
@@ -44,7 +44,7 @@ def user_register():
             new_user = User(username=u_name,password=pwd,fullname=fn,qualification=qfn,dob=dobcon)
             db.session.add(new_user)
             db.session.commit()
-            return render_template('user_dashboard.html', u_name = u_name)
+            return redirect(url_for('user_dashboard', u_name = u_name))
 
     return render_template('register.html')
 
@@ -52,15 +52,16 @@ def user_register():
 
 
 
-
-
-@app.route('/view/1')
+@app.route('/view/<int:quiz_id>')
 def view_quiz(quiz_id):
-    return render_template('user_viewquiz.html')
+    quiz = Quiz.query.get(quiz_id)
+    return render_template('user_viewquiz.html',quiz=quiz)
 
 @app.route('/user_dashboard')
 def user_dashboard():
-    return render_template('user_dashboard.html')
+    u_name = request.args.get('u_name')
+    quizzes = Quiz.query.all()
+    return render_template('user_dashboard.html',quizzes=quizzes,u_name=u_name)
 
 @app.route('/user_scores')
 def user_scores():
@@ -165,20 +166,22 @@ def quizman():
                 return render_template('quiz_management.html',quizes=quizes)
             else:
                 return render_template('quiz_management.html',quizes=[])
-        chapter_id = request.form.get('chapter_id')
-        chapter_name = request.form.get('chapter_name')
+        chapter_id = request.form.get('chapter_id')        
         date = request.form.get('date')
         time = request.form.get('time')
         datecon = datetime.strptime(date, '%Y-%m-%d').date()
         timecon = datetime.strptime(time, '%H:%M:%S').time() 
         time_str = timecon.strftime('%H:%M:%S')
         quiz = Quiz.query.filter_by(chapter_id=chapter_id).first()
+        chapter = Chapter.query.get(chapter_id)
         if not chapter_id:
             return "Please give id to the Chapter before Adding!"
         if  quiz:
             return "Chapter Already Exists :("
+        if not chapter:
+            return "The specified Chapter ID does not exist!"
         else:
-            quiz2 = Quiz(chapter_id=chapter_id,chapter_name=chapter_name,date=datecon,time=time_str)
+            quiz2 = Quiz(chapter_id=chapter_id,date=datecon,time=time_str)
             db.session.add(quiz2)
             db.session.commit() 
             quizes = Quiz.query.all()

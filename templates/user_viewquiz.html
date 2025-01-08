@@ -35,7 +35,41 @@
                 </div>
               </nav>
               <h2 style="text-align: center;margin-top: 5px;">View Quiz Details</h2>
-
+              <div class="container">
+                <div class="card" style="width: 24rem; margin: auto;">
+                    <div class="card-body">
+                        <form>
+                            <div class="mb-3">
+                                <label for="quiz-id" class="form-label">ID:</label>
+                                <input type="text" id="quiz-id" class="form-control" value="{{ quiz.id }}" readonly>
+                            </div>
+                            <div class="mb-3">
+                                <label for="quiz-subject" class="form-label">Subject:</label>
+                                <input type="text" id="quiz-subject" class="form-control" value="{{ quiz.chapter.subject.name }}" readonly>
+                            </div>
+                            <div class="mb-3">
+                                <label for="quiz-chapter" class="form-label">Chapter:</label>
+                                <input type="text" id="quiz-chapter" class="form-control" value="{{ quiz.chapter.name }}" readonly>
+                            </div>
+                            <div class="mb-3">
+                                <label for="quiz-questions" class="form-label">Number of Questions:</label>
+                                <input type="text" id="quiz-questions" class="form-control" value="{{ quiz.questions|length }}" readonly>
+                            </div>
+                            <div class="mb-3">
+                                <label for="quiz-date" class="form-label">Scheduled Date:</label>
+                                <input type="text" id="quiz-date" class="form-control" value="{{ quiz.date }}" readonly>
+                            </div>
+                            <div class="mb-3">
+                                <label for="quiz-duration" class="form-label">Duration (hh:mm):</label>
+                                <input type="text" id="quiz-duration" class="form-control" value="{{ quiz.time }}" readonly>
+                            </div>
+                            <div class="text-center">
+                                <button type="button" class="btn btn-primary" onclick="location.href='/user_dashboard'">Close</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </body>

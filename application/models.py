@@ -35,8 +35,7 @@ class Chapter(db.Model):
 class Quiz(db.Model):
     __tablename__ = 'quiz'
     id = db.Column(db.Integer, primary_key=True)
-    chapter_id = db.Column(db.Integer, db.ForeignKey('chapter.id'), nullable=False)
-    chapter_name = db.Column(db.String(), nullable=False) 
+    chapter_id = db.Column(db.Integer, db.ForeignKey('chapter.id'), nullable=False) 
     date = db.Column(db.Date(), nullable=False)
     time = db.Column(db.String(10), nullable=False)  
     remarks = db.Column(db.String(), nullable=True)
