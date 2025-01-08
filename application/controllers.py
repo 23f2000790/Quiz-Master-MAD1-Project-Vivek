@@ -1,7 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for
 from flask import current_app as app
 from .models import *
-from datetime import datetime
+from datetime import datetime, timedelta
 
 @app.route('/', methods=['GET','POST'])
 def Welcome():
@@ -170,13 +170,15 @@ def quizman():
         date = request.form.get('date')
         time = request.form.get('time')
         datecon = datetime.strptime(date, '%Y-%m-%d').date()
+        timecon = datetime.strptime(time, '%H:%M:%S').time() 
+        time_str = timecon.strftime('%H:%M:%S')
         quiz = Quiz.query.filter_by(chapter_id=chapter_id).first()
         if not chapter_id:
             return "Please give id to the Chapter before Adding!"
         if  quiz:
             return "Chapter Already Exists :("
         else:
-            quiz2 = Quiz(chapter_id=chapter_id,chapter_name=chapter_name,date=datecon,time=time)
+            quiz2 = Quiz(chapter_id=chapter_id,chapter_name=chapter_name,date=datecon,time=time_str)
             db.session.add(quiz2)
             db.session.commit() 
             quizes = Quiz.query.all()
@@ -190,6 +192,7 @@ def add_question(quiz_id):
     if request.method == 'POST':
         if request.form.get('submit') == "Cancel":
             return redirect(url_for('quizmantemp'))
+        id = request.form.get('id')
         title = request.form.get('title')
         qst = request.form.get('qst')
         o1 = request.form.get('o1')
@@ -197,10 +200,16 @@ def add_question(quiz_id):
         o3 = request.form.get('o3')
         o4 = request.form.get('o4')
         co = request.form.get('co')
-        new_question = Question(quiz_id=quiz_id,title=title,question_statement=qst,option1=o1,option2=o2,option3=o3,option4=o4,correct_option=co)
-        db.session.add(new_question)
-        db.session.commit()
-        return redirect(url_for('quizmantemp'))
+        idd = Question.query.filter_by(question_id=id).first()
+        if not id:
+                return "Please give ID to the Question before Adding!"
+        if idd:
+            return "Subject Already Exists :("
+        else:
+            new_question = Question(quiz_id=quiz_id,question_id=id,title=title,question_statement=qst,option1=o1,option2=o2,option3=o3,option4=o4,correct_option=co)
+            db.session.add(new_question)
+            db.session.commit()
+            return redirect(url_for('quizmantemp'))
     return render_template('add_question.html', quiz_id=quiz_id)
 
 
@@ -213,8 +222,12 @@ def deletequestion(question_id):
 
 @app.route('/deletequiz/<int:quiz_id>',methods=['GET','POST'])
 def deletequiz(quiz_id):
+    questions = Question.query.filter_by(quiz_id=quiz_id)
+    for question in questions:
+        db.session.delete(question)
     quiz = Quiz.query.get_or_404(quiz_id)
     db.session.delete(quiz)
     db.session.commit()
     return redirect(url_for('quizmantemp'))
+
 

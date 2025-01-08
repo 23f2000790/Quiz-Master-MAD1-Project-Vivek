@@ -13,7 +13,7 @@ class User(db.Model):
     password = db.Column(db.String(), nullable = False)
     fullname = db.Column(db.String(), nullable=False)
     qualification = db.Column(db.String(), nullable=False)
-    dob = db.Column(db.String(),nullable = False)
+    dob = db.Column(db.Date(),nullable = False)
     type = db.Column(db.String(), default="user")
     scores = db.relationship('Score', backref='user')
 
@@ -47,6 +47,7 @@ class Question(db.Model):
     __tablename__ = 'question'
     id = db.Column(db.Integer, primary_key=True)
     quiz_id = db.Column(db.Integer, db.ForeignKey('quiz.id'), nullable=False)
+    question_id = db.Column(db.String(), nullable=False, unique=True)
     title = db.Column(db.String(), nullable=False)
     question_statement = db.Column(db.String(), nullable=False)
     option1 = db.Column(db.String(), nullable=False)

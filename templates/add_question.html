@@ -12,6 +12,10 @@
                 <h1 id="centre-text">New Question</h1>
                 <form action="/addquestion/{{ quiz_id }}" method="post">
                     <div class="mb-3">
+                        <label for="id" class="form-label">Question id</label>
+                        <input type="text" class="form-control" id="id" name="id">
+                    </div>
+                    <div class="mb-3">
                         <label for="title" class="form-label">Question Title</label>
                         <input type="text" class="form-control" id="title" name="title">
                     </div>
