@@ -203,3 +203,18 @@ def add_question(quiz_id):
         return redirect(url_for('quizmantemp'))
     return render_template('add_question.html', quiz_id=quiz_id)
 
+
+@app.route('/deletequestion/<int:question_id>',methods=['GET','POST'])
+def deletequestion(question_id):
+    question = Question.query.get_or_404(question_id)
+    db.session.delete(question)
+    db.session.commit()
+    return redirect(url_for('quizmantemp'))
+
+@app.route('/deletequiz/<int:quiz_id>',methods=['GET','POST'])
+def deletequiz(quiz_id):
+    quiz = Quiz.query.get_or_404(quiz_id)
+    db.session.delete(quiz)
+    db.session.commit()
+    return redirect(url_for('quizmantemp'))
+
