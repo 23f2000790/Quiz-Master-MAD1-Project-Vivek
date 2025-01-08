@@ -183,24 +183,23 @@ def quizman():
             return render_template('quiz_management.html',quizes=quizes)
     return redirect('quiz_management.html')
 
-@app.route('/addquestion',methods=['GET'])
-def addquestion():
-    return render_template('add_question.html')
 
-@app.route('/addquestion2',methods=['POST'])
-def add_question():
-    if request.form.get('submit') == "Cancel":
+
+@app.route('/addquestion/<int:quiz_id>',methods=['GET','POST'])
+def add_question(quiz_id):
+    if request.method == 'POST':
+        if request.form.get('submit') == "Cancel":
+            return redirect(url_for('quizmantemp'))
+        title = request.form.get('title')
+        qst = request.form.get('qst')
+        o1 = request.form.get('o1')
+        o2 = request.form.get('o2')
+        o3 = request.form.get('o3')
+        o4 = request.form.get('o4')
+        co = request.form.get('co')
+        new_question = Question(quiz_id=quiz_id,title=title,question_statement=qst,option1=o1,option2=o2,option3=o3,option4=o4,correct_option=co)
+        db.session.add(new_question)
+        db.session.commit()
         return redirect(url_for('quizmantemp'))
-    id = request.form.get('id')
-    title = request.form.get('title')
-    qst = request.form.get('qst')
-    o1 = request.form.get('o1')
-    o2 = request.form.get('o2')
-    o3 = request.form.get('o3')
-    o4 = request.form.get('o4')
-    co = request.form.get('co')
-    new_question = Question(quiz_id=id,title=title,question_statement=qst,option1=o1,option2=o2,option3=o3,option4=o4,correct_option=co)
-    db.session.add(new_question)
-    db.session.commit()
-    return redirect(url_for('quizmantemp'))
+    return render_template('add_question.html', quiz_id=quiz_id)
 

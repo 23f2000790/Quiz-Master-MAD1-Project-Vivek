@@ -40,7 +40,8 @@
                 <div class="row">
                   {% for quiz in quizes %}
                   <div class="col-md-6">                
-                      <h2 class="text-center mt-2">Quiz{{quiz.chapter_id}}({{quiz.chapter_name}})</h2>
+                      <h2 class="text-center mt-2">Quiz{{quiz.id}}({{quiz.chapter_name}})</h2>
+                      <p>Quiz ID: {{ quiz.id }}</p>
                     <div class="table-div">
                       <table class="table table-hover">
                         <thead>
@@ -66,7 +67,7 @@
                         </tbody>
                       </table>
                       <div class="text-center">
-                        <a href= '/addquestion' class="btn btn-success float-end">Add Question</a>
+                        <a href="/addquestion/{{ quiz.id }}" class="btn btn-success float-end">Add Question</a>
                       </div>
                     </div>
                   </div>
