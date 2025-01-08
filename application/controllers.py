@@ -54,8 +54,8 @@ def user_register():
 
 
 
-@app.route('/view')
-def view_quiz():
+@app.route('/view/1')
+def view_quiz(quiz_id):
     return render_template('user_viewquiz.html')
 
 @app.route('/user_dashboard')
@@ -229,5 +229,8 @@ def deletequiz(quiz_id):
     db.session.delete(quiz)
     db.session.commit()
     return redirect(url_for('quizmantemp'))
+
+
+
 
 
