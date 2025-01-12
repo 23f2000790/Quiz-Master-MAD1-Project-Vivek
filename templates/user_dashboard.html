@@ -17,7 +17,7 @@
                   <div class="collapse navbar-collapse" id="navbarSupportedContent">
                     <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                       <li class="nav-item">
-                        <a class="nav-link active" aria-current="page" href="/user_scores">Scores</a>
+                        <a class="nav-link active" aria-current="page" href="/user_scores/{{ u_name }}">Scores</a>
                       </li>
                       <li class="nav-item">
                         <a class="nav-link active" aria-current="page" href="#">Summary</a>
@@ -54,7 +54,7 @@
                         <td>{{ quiz.date }}</td>
                         <td>{{ quiz.time }}</td>
                         <td>
-                          <button type="button" class="btn btn-primary" onclick="location.href='/view/{{ quiz.id }}'">View</button>
+                          <button type="button" class="btn btn-primary" onclick="location.href='/view/{{ quiz.id }}/{{ u_name }}'">View</button>
                           <button type="button" class="btn btn-success" onclick="location.href='/start_quiz/{{ quiz.id }}'">Start</button>
                         </td>
                       </tr>

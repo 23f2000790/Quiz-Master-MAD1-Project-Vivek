@@ -52,10 +52,10 @@ def user_register():
 
 
 
-@app.route('/view/<int:quiz_id>')
-def view_quiz(quiz_id):
+@app.route('/view/<int:quiz_id>/<u_name>')
+def view_quiz(quiz_id,u_name):
     quiz = Quiz.query.get(quiz_id)
-    return render_template('user_viewquiz.html',quiz=quiz)
+    return render_template('user_viewquiz.html',quiz=quiz,u_name=u_name)
 
 @app.route('/user_dashboard')
 def user_dashboard():
@@ -63,9 +63,9 @@ def user_dashboard():
     quizzes = Quiz.query.all()
     return render_template('user_dashboard.html',quizzes=quizzes,u_name=u_name)
 
-@app.route('/user_scores')
-def user_scores():
-    return render_template('user_scores.html')
+@app.route('/user_scores/<u_name>')
+def user_scores(u_name):
+    return render_template('user_scores.html', u_name=u_name)
 
 @app.route('/admin',methods=['GET','POST'])
 def admin_dashboard():
@@ -141,6 +141,7 @@ def edit_chapter(chapter_id):
 @app.route('/deletechapter/<int:chapter_id>',methods=['GET','POST'])
 def deletechapter(chapter_id):
     chapter = Chapter.query.get_or_404(chapter_id)
+    Quiz.query.filter_by(chapter_id=chapter_id).delete()
     db.session.delete(chapter)
     db.session.commit()
     return redirect(url_for('admin_dashboard'))
