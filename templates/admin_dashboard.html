@@ -10,7 +10,7 @@
         <div id="canvas">
           <nav class="navbar navbar-expand-lg bg-body-dark" style="background-color: 	#d8eeff;">
                 <div class="container-fluid">
-                  <a class="navbar-brand" href="#">Home</a>
+                  <a class="navbar-brand" href="/admin">Home</a>
                   <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                   </button>
@@ -41,6 +41,7 @@
                   {% for subject in subjects %}
                   <div class="col-md-6">                
                       <h2 class="text-center mt-2">{{ subject.name}}</h2>
+                      <p>Subject ID: {{ subject.id }}</p>
                     <div class="table-div">
                       <table class="table table-hover">
                         <thead>

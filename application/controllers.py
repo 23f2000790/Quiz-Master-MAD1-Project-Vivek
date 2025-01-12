@@ -65,7 +65,7 @@ def user_dashboard():
 
 @app.route('/user_scores/<u_name>')
 def user_scores(u_name):
-    return render_template('user_scores.html', u_name=u_name)
+    return render_template('user_scores.html',u_name=u_name)
 
 @app.route('/admin',methods=['GET','POST'])
 def admin_dashboard():
@@ -204,18 +204,17 @@ def add_question(quiz_id):
         o3 = request.form.get('o3')
         o4 = request.form.get('o4')
         co = request.form.get('co')
-        idd = Question.query.filter_by(question_id=id).first()
+        exists = Question.query.filter_by(quiz_id=quiz_id, question_id=id).first()
         if not id:
-                return "Please give ID to the Question before Adding!"
-        if idd and Question.quiz_id != quiz_id:
-            return "Subject Already Exists :("
-        else:
-            new_question = Question(quiz_id=quiz_id,question_id=id,title=title,question_statement=qst,option1=o1,option2=o2,option3=o3,option4=o4,correct_option=co)
-            db.session.add(new_question)
-            db.session.commit()
-            return redirect(url_for('quizmantemp'))
-    return render_template('add_question.html', quiz_id=quiz_id)
+            return "Please enter some ID for the question!"
+        if exists:
+            return "A question already exists with this ID!"
+        new_question = Question(quiz_id=quiz_id,question_id=id,title=title,question_statement=qst,option1=o1,option2=o2,option3=o3,option4=o4,correct_option=co)
+        db.session.add(new_question)
+        db.session.commit()
+        return redirect(url_for('quizmantemp'))
 
+    return render_template('add_question.html', quiz_id=quiz_id)
 
 @app.route('/deletequestion/<int:question_id>',methods=['GET','POST'])
 def deletequestion(question_id):
@@ -233,6 +232,9 @@ def deletequiz(quiz_id):
     db.session.delete(quiz)
     db.session.commit()
     return redirect(url_for('quizmantemp'))
+
+
+
 
 
 
