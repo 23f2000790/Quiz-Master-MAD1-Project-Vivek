@@ -63,9 +63,12 @@ def user_dashboard():
     quizzes = Quiz.query.all()
     return render_template('user_dashboard.html',quizzes=quizzes,u_name=u_name)
 
-@app.route('/user_scores/<u_name>')
-def user_scores(u_name):
-    return render_template('user_scores.html',u_name=u_name)
+@app.route('/scores/<int:quiz_id>/<u_name>/<int:score>')
+def scores(u_name,quiz_id,score):
+    quiz = Quiz.query.filter_by(id=quiz_id).first()
+    questions = Question.query.filter_by(quiz_id=quiz_id).all()
+    return render_template('user_scores.html', quiz=quiz, u_name=u_name, questions=questions, score=score)
+
 
 @app.route('/admin',methods=['GET','POST'])
 def admin_dashboard():
@@ -234,9 +237,32 @@ def deletequiz(quiz_id):
     return redirect(url_for('quizmantemp'))
 
 
+@app.route('/start_quiz/<int:quiz_id>/<u_name>',methods=['GET','POST'])
+def startquiztemp(quiz_id,u_name):
+    quiz = Quiz.query.filter_by(id=quiz_id).first()
+    questions =  Question.query.filter_by(quiz_id=quiz_id).all()
+    noofquestions = len(questions)
+    score = 0
+    
+    if 'q_index' not in request.args:
+        current_index = 0  
+    else:
+        current_index = int(request.args.get('q_index'))
+
+    
+    if request.method == 'POST':
+        selected_option = int(request.form.get('answer'))
+        ci = questions[current_index]
+        co = ci.correct_option
+        if selected_option == co:
+            score += 1
+        if not selected_option:
+            return render_template('startquiz.html', quiz=quiz, u_name=u_name, questions=questions, current_index=current_index)
 
 
-
-
-
-
+        if current_index + 1 < noofquestions:
+            return redirect(url_for('startquiztemp', quiz_id=quiz_id, u_name=u_name, q_index=current_index + 1))
+        else:
+            return redirect(url_for('scores', quiz_id=quiz_id, u_name=u_name, score=score))
+    
+    return render_template('startquiz.html', quiz=quiz, u_name=u_name, questions=questions, current_index=current_index)
