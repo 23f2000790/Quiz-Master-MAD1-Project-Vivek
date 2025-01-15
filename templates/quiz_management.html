@@ -54,7 +54,7 @@
                         <tbody>
                           {% for question in quiz.questions %}
                             <tr>
-                              <td>{{ loop.index }}</td>  <!-- This gives you the increasing numbering -->
+                              <td>{{ question.question_id }}</td>  
                               <td>{{ question.title }}</td>
                               <td>
                                 <div class="text-center">

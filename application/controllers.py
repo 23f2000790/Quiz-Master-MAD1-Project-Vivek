@@ -63,11 +63,11 @@ def user_dashboard():
     quizzes = Quiz.query.all()
     return render_template('user_dashboard.html',quizzes=quizzes,u_name=u_name)
 
-@app.route('/scores/<int:quiz_id>/<u_name>/<int:score>')
-def scores(u_name,quiz_id,score):
-    quiz = Quiz.query.filter_by(id=quiz_id).first()
-    questions = Question.query.filter_by(quiz_id=quiz_id).all()
-    return render_template('user_scores.html', quiz=quiz, u_name=u_name, questions=questions, score=score)
+@app.route('/scores/<u_name>')
+def scores(u_name):
+    user = User.query.filter_by(username=u_name).first()
+    score = Score.query.filter_by(user_id=user.id)
+    return render_template('user_scores.html', u_name=u_name, score=score)
 
 
 @app.route('/admin',methods=['GET','POST'])
@@ -207,6 +207,8 @@ def add_question(quiz_id):
         o3 = request.form.get('o3')
         o4 = request.form.get('o4')
         co = request.form.get('co')
+        if o1 == any([o2,o3,o4]) or o2 == any([o3,o4]) or o3 == o4:
+            return "No 2 or more options can be same"
         exists = Question.query.filter_by(quiz_id=quiz_id, question_id=id).first()
         if not id:
             return "Please enter some ID for the question!"
@@ -242,7 +244,7 @@ def startquiztemp(quiz_id,u_name):
     quiz = Quiz.query.filter_by(id=quiz_id).first()
     questions =  Question.query.filter_by(quiz_id=quiz_id).all()
     noofquestions = len(questions)
-    score = 0
+    score = int(request.args.get('score', 0))
     
     if 'q_index' not in request.args:
         current_index = 0  
@@ -251,18 +253,26 @@ def startquiztemp(quiz_id,u_name):
 
     
     if request.method == 'POST':
-        selected_option = int(request.form.get('answer'))
+        selected_option = int(request.form.get('answer',0))
+        print(selected_option)
         ci = questions[current_index]
         co = ci.correct_option
         if selected_option == co:
             score += 1
+        else:
+            score=score
         if not selected_option:
             return render_template('startquiz.html', quiz=quiz, u_name=u_name, questions=questions, current_index=current_index)
 
 
         if current_index + 1 < noofquestions:
-            return redirect(url_for('startquiztemp', quiz_id=quiz_id, u_name=u_name, q_index=current_index + 1))
+            return redirect(url_for('startquiztemp', quiz_id=quiz_id, u_name=u_name, q_index=current_index + 1,score=score))
         else:
-            return redirect(url_for('scores', quiz_id=quiz_id, u_name=u_name, score=score))
+            user = User.query.filter_by(username=u_name).first()
+            score2 = Score(quiz_id=quiz_id,user_id=user.id,total_score=score)
+            db.session.add(score2)
+            db.session.commit()
+            score=0
+            return redirect(url_for('scores', u_name=u_name))
     
     return render_template('startquiz.html', quiz=quiz, u_name=u_name, questions=questions, current_index=current_index)

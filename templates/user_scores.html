@@ -46,13 +46,14 @@
                     </tr>
                   </thead>
                   <tbody>
-                    <tr>
-                      <td>{{quiz.id}}</td>
-                      <td>{{questions|length}}</td>
-                      <td>{{quiz.date}}</td>
-                      <td>{{score}}</td>
-                    </tr>
-
+                    {% for s in score %}
+                      <tr>
+                        <td>{{s.quiz.id}}</td>
+                        <td>{{s.quiz.questions|length}}</td>
+                        <td>{{s.quiz.date}}</td>
+                        <td>{{s.total_score}}</td>
+                      </tr>
+                    {% endfor %}
                   </tbody>
                 </table>
               </div>
