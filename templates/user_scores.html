@@ -17,7 +17,7 @@
                   <div class="collapse navbar-collapse" id="navbarSupportedContent">
                     <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                       <li class="nav-item">
-                        <a class="nav-link active" aria-current="page" href="#">Scores</a>
+                        <a class="nav-link active" aria-current="page" href="/scores/{{ u_name }}">Scores</a>
                       </li>
                       <li class="nav-item">
                         <a class="nav-link active" aria-current="page" href="#">Summary</a>
@@ -31,7 +31,7 @@
                       <button class="btn btn-outline-success" type="submit">Search</button>
                     </form>
                   </div>
-                  <a>Welcome {{u_name}}</a>
+                  <a>&ensp; Welcome {{u_name}}</a>
                 </div>
               </nav>
               <h2 style="text-align: center;margin-top: 5px;">Your Quiz Scores</h2>
@@ -40,6 +40,7 @@
                   <thead>
                     <tr>
                       <th scope="col">ID</th>
+                      <th scope ="col">Chapter Name</th>
                       <th scope="col">No. of Questions</th>
                       <th scope="col">Date</th>
                       <th scope="col">Score</th>
@@ -49,6 +50,7 @@
                     {% for s in score %}
                       <tr>
                         <td>{{s.quiz.id}}</td>
+                        <td>{{s.quiz.chapter.name}}</td>
                         <td>{{s.quiz.questions|length}}</td>
                         <td>{{s.quiz.date}}</td>
                         <td>{{s.total_score}}/{{s.quiz.questions|length}}</td>

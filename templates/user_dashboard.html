@@ -10,7 +10,7 @@
         <div id="canvas">
           <nav class="navbar navbar-expand-lg bg-body-dark" style="background-color: 	#d8eeff;">
                 <div class="container-fluid">
-                  <a class="navbar-brand" href="#">Home</a>
+                  <a class="navbar-brand" href="/user_dashboard?u_name={{ u_name }}">Home</a>
                   <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                   </button>
@@ -31,7 +31,7 @@
                       <button class="btn btn-outline-success" type="submit">Search</button>
                     </form>
                   </div>
-                  <span> Welcome {{u_name}}</span>
+                  <span>&ensp; Welcome {{u_name}}</span>
                 </div>
               </nav>
               <h2 style="text-align: center;margin-top: 5px;">Upcoming Quizzes</h2>
@@ -40,6 +40,7 @@
                   <thead>
                     <tr>
                       <th scope="col">ID</th>
+                      <th scope ="col">Chapter Name</th>
                       <th scope="col">No. of Questions</th>
                       <th scope="col">Date</th>
                       <th scope="col">Duration(hh:mm:ss)</th>
@@ -50,10 +51,11 @@
                     {% for quiz in quizzes %}
                       <tr>
                         <td>{{ quiz.id }}</td>
+                        <td>{{ quiz.chapter.name }}</td>
                         <td>{{ quiz.questions|length }}</td>
                         <td>{{ quiz.date }}</td>
                         <td>{{ quiz.time }}</td>
-                        <td>
+                        <td class="button">
                           <button type="button" class="btn btn-primary" onclick="location.href='/view/{{ quiz.id }}/{{ u_name }}'">View</button>
                           <button type="button" class="btn btn-success" onclick="location.href='/start_quiz/{{ quiz.id }}/{{ u_name }}'">Start</button>
                         </td>

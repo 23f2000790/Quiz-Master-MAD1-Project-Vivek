@@ -276,3 +276,15 @@ def startquiztemp(quiz_id,u_name):
             return redirect(url_for('scores', u_name=u_name))
     
     return render_template('startquiz.html', quiz=quiz, u_name=u_name, questions=questions, current_index=current_index)
+
+
+
+@app.route('/deletesubject/<int:subject_id>',methods=['GET','POST'])
+def deletesubject(subject_id):
+    chapters = Chapter.query.filter_by(subject_id=subject_id)
+    for chapter in chapters:
+        db.session.delete(chapter)
+    subject = Subject.query.get_or_404(subject_id)
+    db.session.delete(subject)
+    db.session.commit()
+    return redirect(url_for('admin_dashboard'))

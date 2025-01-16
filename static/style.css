@@ -52,3 +52,12 @@
 #quiz-body {
     margin: 10px;
 }
+
+.action-column {
+    text-align: center;
+}
+
+.action-buttons {
+    display: flex;
+    justify-content: center;
+}
