@@ -288,3 +288,34 @@ def deletesubject(subject_id):
     db.session.delete(subject)
     db.session.commit()
     return redirect(url_for('admin_dashboard'))
+
+@app.route('/editquestion/<int:question_id>/<int:quiz_id>',methods=['GET','POST'])
+def editquestion(question_id,quiz_id):
+    question = Question.query.filter_by(question_id=question_id,quiz_id=quiz_id).first()
+    return render_template('edit_question.html',question=question, quiz_id=quiz_id)
+
+
+@app.route('/editquestion2/<int:question_id>/<int:quiz_id>',methods=['POST'])
+def edit_question(question_id,quiz_id):
+    question = Question.query.filter_by(question_id=question_id,quiz_id=quiz_id).first()
+    if request.form.get('submit') == "Cancel":
+        return redirect(url_for('quizmantemp'))
+    title = request.form.get('title')
+    qst = request.form.get('qst')
+    o1 = request.form.get('o1')
+    o2 = request.form.get('o2')
+    o3 = request.form.get('o3')
+    o4 = request.form.get('o4')
+    co = request.form.get('co')
+    if o1 == any([o2,o3,o4]) or o2 == any([o3,o4]) or o3 == o4:
+        return "No 2 or more options can be same"
+
+    question.title = title
+    question.question_statement = qst
+    question.option1 = o1
+    question.option2 = o2
+    question.option3 = o3
+    question.option4 = o4
+    question.correct_option = co
+    db.session.commit()
+    return redirect(url_for('quizmantemp'))

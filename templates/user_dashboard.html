@@ -55,7 +55,7 @@
                         <td>{{ quiz.questions|length }}</td>
                         <td>{{ quiz.date }}</td>
                         <td>{{ quiz.time }}</td>
-                        <td class="button">
+                        <td>
                           <button type="button" class="btn btn-primary" onclick="location.href='/view/{{ quiz.id }}/{{ u_name }}'">View</button>
                           <button type="button" class="btn btn-success" onclick="location.href='/start_quiz/{{ quiz.id }}/{{ u_name }}'">Start</button>
                         </td>

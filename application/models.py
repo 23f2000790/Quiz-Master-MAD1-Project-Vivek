@@ -58,6 +58,6 @@ class Question(db.Model):
 class Score(db.Model):
     __tablename__ = 'score'
     id = db.Column(db.Integer, primary_key=True)
-    quiz_id = db.Column(db.Integer, db.ForeignKey('quiz.id'), nullable=False)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    quiz_id = db.Column(db.Integer, db.ForeignKey('quiz.id'), nullable=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
     total_score = db.Column(db.Integer, nullable=False)
