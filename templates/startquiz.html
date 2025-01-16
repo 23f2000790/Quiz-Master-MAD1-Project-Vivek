@@ -11,24 +11,28 @@
             <div>
                 <h1 id="centre-text">Ongoing Quiz: {{quiz.chapter.name}}</h1><br>
                 <p>Question {{ current_index + 1 }} of {{ questions | length }}</p>
-        
+                {% if e %}
+                    <div class="alert alert-danger text-center">
+                        {{ e }}
+                    </div>
+                {% endif %}
                 {% with question = questions[current_index] %}
                 <form method="post">
                     <p>{{ question.title }}: {{question.question_statement}}</p>
                     <div class="form-check">
-                        <input class="form-check-input" type="radio" name="answer" id="option1" value="{{ question.option1 }}">
+                        <input class="form-check-input" type="radio" name="answer" id="option1" value="1">
                         <label class="form-check-label" for="option1">{{ question.option1 }}</label>
                     </div>
                     <div class="form-check">
-                        <input class="form-check-input" type="radio" name="answer" id="option2" value="{{ question.option2 }}">
+                        <input class="form-check-input" type="radio" name="answer" id="option2" value="2">
                         <label class="form-check-label" for="option2">{{ question.option2 }}</label>
                     </div>
                     <div class="form-check">
-                        <input class="form-check-input" type="radio" name="answer" id="option3" value="{{ question.option3 }}">
+                        <input class="form-check-input" type="radio" name="answer" id="option3" value="3">
                         <label class="form-check-label" for="option3">{{ question.option3 }}</label>
                     </div>
                     <div class="form-check">
-                        <input class="form-check-input" type="radio" name="answer" id="option4" value="{{ question.option4 }}">
+                        <input class="form-check-input" type="radio" name="answer" id="option4" value="4">
                         <label class="form-check-label" for="option4">{{ question.option4 }}</label>
                     </div>
                     <div class="text-center">

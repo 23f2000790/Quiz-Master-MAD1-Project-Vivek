@@ -254,7 +254,6 @@ def startquiztemp(quiz_id,u_name):
     
     if request.method == 'POST':
         selected_option = int(request.form.get('answer',0))
-        print(selected_option)
         ci = questions[current_index]
         co = ci.correct_option
         if selected_option == co:
@@ -262,7 +261,8 @@ def startquiztemp(quiz_id,u_name):
         else:
             score=score
         if not selected_option:
-            return render_template('startquiz.html', quiz=quiz, u_name=u_name, questions=questions, current_index=current_index)
+            e = "Please select an option before going on to the next question."
+            return render_template('startquiz.html', quiz=quiz, u_name=u_name, questions=questions, current_index=current_index, e=e)
 
 
         if current_index + 1 < noofquestions:
