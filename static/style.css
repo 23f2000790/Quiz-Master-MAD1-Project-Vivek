@@ -49,6 +49,12 @@
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.477); 
 }
 
+.table th, td {
+    padding: 10px;
+    text-align: center; 
+}
+
+
 #quiz-body {
     margin: 10px;
 }

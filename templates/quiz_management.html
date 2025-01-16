@@ -57,10 +57,8 @@
                               <td>{{ question.question_id }}</td>  
                               <td>{{ question.title }}</td>
                               <td>
-                                <div class="text-center">
                                   <a href='/editquestion/{{question.id}}' class="btn btn-secondary">Edit</a>
                                   <a href='/deletequestion/{{question.id}}' class="btn btn-danger">Delete</a>
-                                </div>
                               </td>
                             </tr>
                           {% endfor %}
@@ -68,7 +66,7 @@
                       </table>
                       <div class="text-center">
                         <a href="/addquestion/{{ quiz.id }}" class="btn btn-success float-end">Add Question</a>
-                        <a href="/deletequiz/{{ quiz.id }}" class="btn btn-danger float-end">Delete Quiz</a>
+                        <a href="/deletequiz/{{ quiz.id }}" class="btn btn-danger float-start">Delete Quiz</a>
                       </div>
                     </div>
                   </div>
