@@ -51,7 +51,7 @@
                         <td>{{s.quiz.id}}</td>
                         <td>{{s.quiz.questions|length}}</td>
                         <td>{{s.quiz.date}}</td>
-                        <td>{{s.total_score}}</td>
+                        <td>{{s.total_score}}/{{s.quiz.questions|length}}</td>
                       </tr>
                     {% endfor %}
                   </tbody>
