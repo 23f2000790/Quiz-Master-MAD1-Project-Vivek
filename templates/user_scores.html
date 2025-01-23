@@ -49,11 +49,11 @@
                   <tbody>
                     {% for s in score %}
                       <tr>
-                        <td>{{s.quiz.id}}</td>
-                        <td>{{s.quiz.chapter.name}}</td>
-                        <td>{{s.quiz.questions|length}}</td>
-                        <td>{{s.quiz.date}}</td>
-                        <td>{{s.total_score}}/{{s.quiz.questions|length}}</td>
+                        <td>{{s.quiz_id}}</td>
+                        <td>{{s.chapter_name}}</td>
+                        <td>{{s.noq}}</td>
+                        <td>{{s.qdate}}</td>
+                        <td>{{s.total_score}}/{{s.noq}}</td>
                       </tr>
                     {% endfor %}
                   </tbody>

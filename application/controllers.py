@@ -118,7 +118,7 @@ def add_chapter(subject_id):
     if request.form.get('submit') == "Cancel":
         return redirect(url_for('admin_dashboard'))
     name = request.form.get('name')
-    description = request.form.get('description')
+    description = request.form.get('dsc')
     new_chapter = Chapter(name=name,description=description,subject_id=subject.id)
     db.session.add(new_chapter)
     db.session.commit()
@@ -160,19 +160,19 @@ def quizmantemp():
         return render_template('quiz_management.html',quizes=quizes)
     else:
         return render_template('quiz_management.html',quizes=[])
-
+    
 @app.route('/quizman',methods=['GET','POST'])
 def quizman():
     if request.method == "POST":
         if request.form.get('submit') == "Cancel":
-            quizes = Quiz.query.all()
-            if quizes:
-                return render_template('quiz_management.html',quizes=quizes)
-            else:
-                return render_template('quiz_management.html',quizes=[])
+            return redirect(url_for('quizmantemp'))
         chapter_id = request.form.get('chapter_id')        
         date = request.form.get('date')
         time = request.form.get('time')
+        if not date:
+            return "Please specify a date for the quiz!"
+        if not time:
+            return "Please set a time for the quiz!"
         datecon = datetime.strptime(date, '%Y-%m-%d').date()
         timecon = datetime.strptime(time, '%H:%M:%S').time() 
         time_str = timecon.strftime('%H:%M:%S')
@@ -269,7 +269,7 @@ def startquiztemp(quiz_id,u_name):
             return redirect(url_for('startquiztemp', quiz_id=quiz_id, u_name=u_name, q_index=current_index + 1,score=score))
         else:
             user = User.query.filter_by(username=u_name).first()
-            score2 = Score(quiz_id=quiz_id,user_id=user.id,total_score=score)
+            score2 = Score(quiz_id=quiz_id,chapter_name=quiz.chapter.name,noq=noofquestions,qdate=quiz.date,total_score=score,user_id=user.id)
             db.session.add(score2)
             db.session.commit()
             score=0
@@ -283,6 +283,9 @@ def startquiztemp(quiz_id,u_name):
 def deletesubject(subject_id):
     chapters = Chapter.query.filter_by(subject_id=subject_id)
     for chapter in chapters:
+        quiz = Quiz.query.filter_by(chapter_id=chapter.id)
+        for q in quiz:
+            db.session.delete(q)
         db.session.delete(chapter)
     subject = Subject.query.get_or_404(subject_id)
     db.session.delete(subject)

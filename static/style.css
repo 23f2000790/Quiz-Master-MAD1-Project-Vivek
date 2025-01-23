@@ -1,11 +1,11 @@
 *{
     margin: 0px;
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
 }
 #main, #canvas{
     border: 2px solid black;
 }
 #canvas {
-    width: 80%;
     margin: auto;
     min-height: 694px;
     position: relative;

@@ -46,6 +46,7 @@
                       <table class="table table-hover">
                         <thead>
                           <tr>
+                            <th scope="col">ID</th>
                             <th scope="col">Chapter Name</th>
                             <th scope="col">Description</th>
                             <th scope="col">Action</th>
@@ -54,6 +55,7 @@
                         <tbody>
                           {% for chapter in subject.chapters %}
                             <tr>
+                              <td>{{ chapter.id }}</td>
                               <td>{{ chapter.name }}</td>
                               <td>{{ chapter.description }}</td>
                               <td>
