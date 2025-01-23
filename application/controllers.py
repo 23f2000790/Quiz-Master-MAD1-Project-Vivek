@@ -207,7 +207,7 @@ def add_question(quiz_id):
         o3 = request.form.get('o3')
         o4 = request.form.get('o4')
         co = request.form.get('co')
-        if o1 == any([o2,o3,o4]) or o2 == any([o3,o4]) or o3 == o4:
+        if o1 in [o2, o3, o4] or o2 in [o3, o4] or o3 == o4:
             return "No 2 or more options can be same"
         exists = Question.query.filter_by(quiz_id=quiz_id, question_id=id).first()
         if not id:
@@ -310,7 +310,7 @@ def edit_question(question_id,quiz_id):
     o3 = request.form.get('o3')
     o4 = request.form.get('o4')
     co = request.form.get('co')
-    if o1 == any([o2,o3,o4]) or o2 == any([o3,o4]) or o3 == o4:
+    if any([o1,o2,o3,o4]) == any([o1,o2,o3,o4]):
         return "No 2 or more options can be same"
 
     question.title = title
@@ -322,3 +322,10 @@ def edit_question(question_id,quiz_id):
     question.correct_option = co
     db.session.commit()
     return redirect(url_for('quizmantemp'))
+
+@app.route('/usersdata')
+def users_data():
+    users = User.query.filter_by(type="user").all()
+    quiz = Quiz.query.all()
+    q = len(quiz)
+    return render_template('userdata.html',users=users,q=q)

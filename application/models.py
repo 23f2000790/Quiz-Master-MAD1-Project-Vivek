@@ -8,6 +8,7 @@ class User(db.Model):
     qualification = db.Column(db.String(), nullable=False)
     dob = db.Column(db.Date(),nullable = False)
     type = db.Column(db.String(), default="user")
+    score = db.relationship('Score', backref='User')
 
 class Subject(db.Model):
     id = db.Column(db.Integer(), primary_key=True)
@@ -49,4 +50,4 @@ class Score(db.Model):
     noq = db.Column(db.Integer)
     qdate = db.Column(db.Date())
     total_score = db.Column(db.Integer)
-    user_id = db.Column(db.Integer)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
