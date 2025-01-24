@@ -26,8 +26,8 @@
                         <a class="nav-link active" aria-current="page" href="/userlogin">Logout</a>
                       </li>
                     </ul>
-                    <form class="d-flex" role="search">
-                      <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search" style="background-color: #ece6e3;">
+                    <form class="d-flex" action="/search/{{ u_name }}">
+                      <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search" name="search_word" style="background-color: #ece6e3;">
                       <button class="btn btn-outline-success" type="submit">Search</button>
                     </form>
                   </div>
@@ -56,8 +56,8 @@
                         <td>{{ quiz.date }}</td>
                         <td>{{ quiz.time }}</td>
                         <td>
-                          <button type="button" class="btn btn-primary" onclick="location.href='/view/{{ quiz.id }}/{{ u_name }}'">View</button>
-                          <button type="button" class="btn btn-success" onclick="location.href='/start_quiz/{{ quiz.id }}/{{ u_name }}'">Start</button>
+                          <a href='/view/{{ quiz.id }}/{{ u_name }}' class="btn btn-primary">View</a>
+                          <a href='/start_quiz/{{ quiz.id }}/{{ u_name }}' class="btn btn-success">Start</a>
                         </td>
                       </tr>
                     {% endfor %}

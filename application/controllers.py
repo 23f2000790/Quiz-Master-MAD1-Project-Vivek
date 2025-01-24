@@ -144,7 +144,11 @@ def edit_chapter(chapter_id):
 @app.route('/deletechapter/<int:chapter_id>',methods=['GET','POST'])
 def deletechapter(chapter_id):
     chapter = Chapter.query.get_or_404(chapter_id)
-    Quiz.query.filter_by(chapter_id=chapter_id).delete()
+    quiz = Quiz.query.filter_by(chapter_id=chapter_id).first()
+    questions = Question.query.filter_by(quiz_id=quiz.id)
+    for question in questions:
+        db.session.delete(question)
+    db.session.delete(quiz)
     db.session.delete(chapter)
     db.session.commit()
     return redirect(url_for('admin_dashboard'))
@@ -283,9 +287,11 @@ def startquiztemp(quiz_id,u_name):
 def deletesubject(subject_id):
     chapters = Chapter.query.filter_by(subject_id=subject_id)
     for chapter in chapters:
-        quiz = Quiz.query.filter_by(chapter_id=chapter.id)
-        for q in quiz:
+        quiz = Quiz.query.filter_by(chapter_id=chapter.id).first()
+        questions = Question.query.filter_by(quiz_id=quiz.id)
+        for q in questions:
             db.session.delete(q)
+        db.session.delete(quiz)
         db.session.delete(chapter)
     subject = Subject.query.get_or_404(subject_id)
     db.session.delete(subject)
@@ -329,3 +335,10 @@ def users_data():
     quiz = Quiz.query.all()
     q = len(quiz)
     return render_template('userdata.html',users=users,q=q)
+
+@app.route('/search/<u_name>')
+def search(u_name):
+    search_word = request.args.get('search_word')
+    sw = "%" + search_word.lower() +"%"
+    chapter = Chapter.query.filter(Chapter.name.like(sw)).all()
+    return render_template('after_search.html',chapter = chapter, sw=search_word,u_name=u_name)
