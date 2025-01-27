@@ -249,7 +249,14 @@ def startquiztemp(quiz_id,u_name):
     questions =  Question.query.filter_by(quiz_id=quiz_id).all()
     noofquestions = len(questions)
     score = int(request.args.get('score', 0))
-    
+    start_time = datetime.now()
+    time = quiz.time.split(':')
+
+    if 'quiz_timer' not in request.args:
+        quiz_timer = int(time[0])*3600 + int(time[1])*60 + int(time[2])
+    else:
+        quiz_timer = int(request.args.get('quiz_timer'))
+
     if 'q_index' not in request.args:
         current_index = 0  
     else:
@@ -257,6 +264,12 @@ def startquiztemp(quiz_id,u_name):
 
     
     if request.method == 'POST':
+        st = request.form.get('st')
+        start_time = datetime.fromisoformat(st)
+        current_time = datetime.now()
+        spent_time = int((current_time - start_time).total_seconds())
+        quiz_timer -= spent_time
+    
         selected_option = int(request.form.get('answer',0))
         ci = questions[current_index]
         co = ci.correct_option
@@ -266,11 +279,10 @@ def startquiztemp(quiz_id,u_name):
             score=score
         if not selected_option:
             e = "Please select an option before going on to the next question."
-            return render_template('startquiz.html', quiz=quiz, u_name=u_name, questions=questions, current_index=current_index, e=e)
-
+            return render_template('startquiz.html', quiz=quiz, u_name=u_name, questions=questions, current_index=current_index, e=e,timer=quiz_timer)
 
         if current_index + 1 < noofquestions:
-            return redirect(url_for('startquiztemp', quiz_id=quiz_id, u_name=u_name, q_index=current_index + 1,score=score))
+            return redirect(url_for('startquiztemp', quiz_id=quiz_id, u_name=u_name, q_index=current_index + 1,score=score,quiz_timer=quiz_timer))
         else:
             user = User.query.filter_by(username=u_name).first()
             score2 = Score(quiz_id=quiz_id,chapter_name=quiz.chapter.name,noq=noofquestions,qdate=quiz.date,total_score=score,user_id=user.id)
@@ -278,8 +290,8 @@ def startquiztemp(quiz_id,u_name):
             db.session.commit()
             score=0
             return redirect(url_for('scores', u_name=u_name))
-    
-    return render_template('startquiz.html', quiz=quiz, u_name=u_name, questions=questions, current_index=current_index)
+
+    return render_template('startquiz.html', quiz=quiz, u_name=u_name, questions=questions, current_index=current_index,timer=quiz_timer,start=start_time)
 
 
 
