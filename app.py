@@ -1,5 +1,5 @@
 from flask import Flask
-from application.database import db
+from controllers.database import db
 
 app = None
 
@@ -14,7 +14,7 @@ def create_app():
 
 app = create_app()
 
-from application.controllers import *
+from controllers.main import *
 
 
 if __name__ == "__main__":
