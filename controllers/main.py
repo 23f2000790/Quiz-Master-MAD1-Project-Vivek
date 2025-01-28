@@ -19,6 +19,8 @@ def user_login():
             if above_user.password == pwd:
                 if above_user.type == "admin":
                     return redirect('/admin')
+                elif above_user.type == "removed":
+                    return "You have been removed, Contact the Admin if this is a mistake"
                 else:
                     return redirect(url_for('user_dashboard', u_name = u_name))
             else:
@@ -393,4 +395,40 @@ def viewanswers(quiz_id,u_name,score_id):
 def inspect(user_id):
     user = User.query.filter_by(id=user_id).first()
     score = Score.query.filter_by(user_id=user_id)
-    return render_template('user_scores.html', user=user, score=score)
+    return render_template('user_more_data.html', user=user, score=score)
+
+@app.route('/view_user_answers/<int:quiz_id>/<fullname>/<int:score_id>')
+def viewuseranswers(quiz_id,fullname,score_id):
+    quiz = Quiz.query.filter_by(id=quiz_id).first()
+    user = User.query.filter_by(fullname = fullname).first()
+
+    questions = Userdata.query.filter_by(quiz_id=quiz_id,score_id=score_id)
+    for i in questions:
+        subquiz_id = i.quiz_id
+        chaptername = i.chapter_name
+        break
+
+    score = Score.query.filter_by(quiz_id=quiz_id,id=score_id).first()
+    L=[]
+    for i in score.selected_answers:
+        L.append(int(i))
+    return render_template('view_user_answers.html',quiz=quiz,questions=questions,user=user,L=L,subquiz_id=subquiz_id,chaptername=chaptername)
+
+@app.route('/remove/<int:user_id>')
+def removeuser(user_id):
+    user = User.query.filter_by(id=user_id).first()
+    user.type = "removed"
+    db.session.commit()
+    return redirect(url_for('users_data'))
+
+@app.route('/bin')
+def bin():
+    user = User.query.filter_by(type="removed").all()
+    return render_template('binusers.html',users=user)
+
+@app.route('/reapprove/<int:user_id>')
+def reapprove(user_id):
+    user = User.query.filter_by(id=user_id).first()
+    user.type = "user"
+    db.session.commit()
+    return redirect(url_for('bin'))
