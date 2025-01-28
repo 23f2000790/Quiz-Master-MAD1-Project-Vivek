@@ -43,7 +43,9 @@
                       <th scope ="col">Chapter Name</th>
                       <th scope="col">No. of Questions</th>
                       <th scope="col">Date</th>
+                      <th scope="col">Time Taken</th>
                       <th scope="col">Score</th>
+                      <th scope="col">Action</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -53,7 +55,11 @@
                         <td>{{s.chapter_name}}</td>
                         <td>{{s.noq}}</td>
                         <td>{{s.qdate}}</td>
+                        <td>{{s.time_taken}}</td>
                         <td>{{s.total_score}}/{{s.noq}}</td>
+                        <td>
+                          <a href='/view_answers/{{ s.quiz_id }}/{{ u_name }}/{{s.id}}' class="btn btn-primary">View Answers</a>
+                        </td>
                       </tr>
                     {% endfor %}
                   </tbody>

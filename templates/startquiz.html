@@ -10,7 +10,10 @@
         <div id = "canvas">
             <div>
                 <h1 id="centre-text">Ongoing Quiz: {{quiz.chapter.name}}</h1><br>
-                <p id="timer">Time Remaining</p>
+                <div id="timer-container" style="margin-left: 85%; display: flex; align-items: center; gap: 10px;">
+                    <p>Time Remaining:</p>
+                    <span id="timer" style="margin-bottom:13px;">--:--:--</span>
+                </div>
                 <script>
                     const timerDuration = Number("{{ timer }}");
                     function startTimer(duration) {

@@ -45,7 +45,6 @@
                     <tr>
                       <th scope="col">User</th>
                       <th scope ="col">No of quiz attempted</th>
-                      <th scope="col">Best quiz</th>
                       <th scope="col">Action</th>
                     </tr>
                   </thead>
@@ -54,10 +53,9 @@
                       <tr>
                         <td>{{ user.fullname }}</td>
                         <td>{{ user.score|length }}/{{ q }}</td>
-                        <td>{{ user.total_score }}</td>
                         <td>
-                          <button type="button" class="btn btn-primary" >View</button>
-                          <button type="button" class="btn btn-success" >Start</button>
+                          <a href='/inspect' class="btn btn-primary">Inspect</a>
+                          <a href='/remove' class="btn btn-danger">Remove</a>
                         </td>
                       </tr>
                     {% endfor %}

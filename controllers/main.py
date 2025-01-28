@@ -252,6 +252,16 @@ def startquiztemp(quiz_id,u_name):
     start_time = datetime.now()
     time = quiz.time.split(':')
 
+    if 'user_select' not in request.args:
+        user_select = ''
+    else:
+        user_select = str(request.args.get('user_select'))
+
+    if 'time_taken' not in request.args:
+        time_taken = 0 
+    else:
+        time_taken = int(request.args.get('time_taken'))
+
     if 'quiz_timer' not in request.args:
         quiz_timer = int(time[0])*3600 + int(time[1])*60 + int(time[2])
     else:
@@ -268,9 +278,11 @@ def startquiztemp(quiz_id,u_name):
         start_time = datetime.fromisoformat(st)
         current_time = datetime.now()
         spent_time = int((current_time - start_time).total_seconds())
+        time_taken += spent_time
         quiz_timer -= spent_time
     
         selected_option = int(request.form.get('answer',0))
+        user_select += str(selected_option)
         ci = questions[current_index]
         co = ci.correct_option
         if selected_option == co:
@@ -282,14 +294,20 @@ def startquiztemp(quiz_id,u_name):
             return render_template('startquiz.html', quiz=quiz, u_name=u_name, questions=questions, current_index=current_index, e=e,timer=quiz_timer)
 
         if current_index + 1 < noofquestions:
-            return redirect(url_for('startquiztemp', quiz_id=quiz_id, u_name=u_name, q_index=current_index + 1,score=score,quiz_timer=quiz_timer))
+            return redirect(url_for('startquiztemp', quiz_id=quiz_id, u_name=u_name, q_index=current_index + 1,score=score,quiz_timer=quiz_timer,time_taken=time_taken,user_select=user_select))
         else:
             user = User.query.filter_by(username=u_name).first()
-            score2 = Score(quiz_id=quiz_id,chapter_name=quiz.chapter.name,noq=noofquestions,qdate=quiz.date,total_score=score,user_id=user.id)
+            total_time_taken = str(timedelta(seconds=time_taken))
+            score2 = Score(quiz_id=quiz_id,chapter_name=quiz.chapter.name,noq=noofquestions,qdate=quiz.date,total_score=score,user_id=user.id,time_taken=total_time_taken,selected_answers=user_select)
             db.session.add(score2)
             db.session.commit()
+            score3 = Score.query.filter_by(quiz_id=quiz_id,user_id=user.id,time_taken=total_time_taken).first()
+            for i in questions:
+                userdata = Userdata(user_id=user.id,quiz_id=quiz_id,chapter_name=quiz.chapter.name,score_id=score3.id,question_id=i.id,title=i.title,question_statement=i.question_statement,option1=i.option1,option2=i.option2,option3=i.option3,option4=i.option4,correct_option=i.correct_option)
+                db.session.add(userdata)
+            db.session.commit()
             score=0
-            return redirect(url_for('scores', u_name=u_name))
+            return redirect(url_for('scores', u_name=u_name,quiz_id=quiz_id,ttt=total_time_taken))
 
     return render_template('startquiz.html', quiz=quiz, u_name=u_name, questions=questions, current_index=current_index,timer=quiz_timer,start=start_time)
 
@@ -354,3 +372,25 @@ def search(u_name):
     sw = "%" + search_word.lower() +"%"
     chapter = Chapter.query.filter(Chapter.name.like(sw)).all()
     return render_template('after_search.html',chapter = chapter, sw=search_word,u_name=u_name)
+
+@app.route('/view_answers/<int:quiz_id>/<u_name>/<int:score_id>')
+def viewanswers(quiz_id,u_name,score_id):
+    quiz = Quiz.query.filter_by(id=quiz_id).first()
+    
+    questions = Userdata.query.filter_by(quiz_id=quiz_id,score_id=score_id)
+    for i in questions:
+        subquiz_id = i.quiz_id
+        chaptername = i.chapter_name
+        break
+
+    score = Score.query.filter_by(quiz_id=quiz_id,id=score_id).first()
+    L=[]
+    for i in score.selected_answers:
+        L.append(int(i))
+    return render_template('view_answers.html',quiz=quiz,questions=questions,u_name=u_name,L=L,subquiz_id=subquiz_id,chaptername=chaptername)
+
+@app.route('/inspect/<int:user_id>')
+def inspect(user_id):
+    user = User.query.filter_by(id=user_id).first()
+    score = Score.query.filter_by(user_id=user_id)
+    return render_template('user_scores.html', user=user, score=score)
