@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, redirect, url_for
 from flask import current_app as app
 from .models import *
 from datetime import datetime, timedelta
+import matplotlib.pyplot as plt
 
 @app.route('/', methods=['GET','POST'])
 def Welcome():
@@ -432,3 +433,13 @@ def reapprove(user_id):
     user.type = "user"
     db.session.commit()
     return redirect(url_for('bin'))
+
+@app.route('/summary/<u_name>')
+def usersummary(u_name):
+    user = User.query.filter_by(username=u_name).first()
+    score = Score.query.filter_by(user_id=user.id).all()
+    scores = []
+    for i in score:
+        scores.append(i.total_score)
+    plt.plot(scores)
+    return "success"
