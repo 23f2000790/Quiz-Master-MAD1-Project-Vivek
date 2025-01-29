@@ -39,7 +39,6 @@
                 <table class="table table-hover" id="table-body">
                   <thead>
                     <tr>
-                      <th scope="col">ID</th>
                       <th scope ="col">Chapter Name</th>
                       <th scope="col">No. of Questions</th>
                       <th scope="col">Date</th>
@@ -50,7 +49,6 @@
                   <tbody>
                     {% for quiz in quizzes %}
                       <tr>
-                        <td>{{ quiz.id }}</td>
                         <td>{{ quiz.chapter.name }}</td>
                         <td>{{ quiz.questions|length }}</td>
                         <td>{{ quiz.date }}</td>

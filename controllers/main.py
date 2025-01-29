@@ -3,6 +3,8 @@ from flask import current_app as app
 from .models import *
 from datetime import datetime, timedelta
 import matplotlib.pyplot as plt
+import matplotlib
+matplotlib.use("Agg")
 
 @app.route('/', methods=['GET','POST'])
 def Welcome():
@@ -63,6 +65,18 @@ def view_quiz(quiz_id,u_name):
 @app.route('/user_dashboard')
 def user_dashboard():
     u_name = request.args.get('u_name')
+    if 'chapter' in request.args:
+        chapter = str(request.args.get('chapter'))
+        ids = []
+        for obj in chapter:
+            ids.append(int(obj))
+        quizzes = Quiz.query.filter(Quiz.chapter_id.in_(ids)).all()
+        return render_template('user_dashboard.html',quizzes=quizzes,u_name=u_name)
+    if 'quiz_date' in request.args:
+        quiz_date = request.args.get('quiz_date')
+        dts = quiz_date.split(',')
+        quizzes = Quiz.query.filter(Quiz.date.in_(dts)).all()
+        return render_template('user_dashboard.html',quizzes=quizzes,u_name=u_name)
     quizzes = Quiz.query.all()
     return render_template('user_dashboard.html',quizzes=quizzes,u_name=u_name)
 
@@ -138,7 +152,7 @@ def edit_chapter(chapter_id):
     if request.form.get('submit') == "Cancel":
         return redirect(url_for('admin_dashboard'))
     name = request.form.get('name')
-    description = request.form.get('description')
+    description = request.form.get('dsc')
     chapter.name = name
     chapter.description = description
     db.session.commit()
@@ -374,7 +388,19 @@ def search(u_name):
     search_word = request.args.get('search_word')
     sw = "%" + search_word.lower() +"%"
     chapter = Chapter.query.filter(Chapter.name.like(sw)).all()
-    return render_template('after_search.html',chapter = chapter, sw=search_word,u_name=u_name)
+    if chapter:
+        st = ''
+        for i in chapter:
+            st += str(i.id)
+        return redirect(url_for('user_dashboard',chapter=st,u_name=u_name))
+    dte = Quiz.query.filter(Quiz.date.like(sw)).all()
+    if dte:
+        st = ''
+        for i in dte:
+            st = st + str(i.date) + ','
+        return redirect(url_for('user_dashboard',quiz_date=st,u_name=u_name))
+
+        
 
 @app.route('/view_answers/<int:quiz_id>/<u_name>/<int:score_id>')
 def viewanswers(quiz_id,u_name,score_id):
@@ -438,8 +464,53 @@ def reapprove(user_id):
 def usersummary(u_name):
     user = User.query.filter_by(username=u_name).first()
     score = Score.query.filter_by(user_id=user.id).all()
-    scores = []
+    if not score:
+        message = "Please Attempt some quizzes to get summary!"
+        return render_template('usersummary.html',msg=message,u_name=u_name)
+    chapter_score = {}
     for i in score:
-        scores.append(i.total_score)
-    plt.plot(scores)
-    return "success"
+        chapter = i.chapter_name
+        marks = i.total_score
+        if chapter not in chapter_score:
+            chapter_score[chapter] = marks
+
+
+    chapter_names = list(chapter_score.keys())
+    first_score = list(chapter_score.values())
+    plt.clf()
+    plt.bar(chapter_names, first_score)
+    plt.xlabel("Chapters")
+    plt.ylabel("Marks")
+    plt.title("Marks Obtained in first attempt")
+    plt.savefig('static/img.png')
+
+    count = 0
+    total_count = 0
+    full_score = {}
+    for i in score:
+        chapter = i.chapter_name
+        marks = i.total_score
+        if chapter not in full_score:
+            total_count += 1
+            full_score[chapter] = marks
+            if marks == i.noq:
+                count += 1
+
+    if count == 0:
+        values = [total_count-count]
+        lables = ["Partial marks"]
+    elif total_count-count == 0:
+        values = [count]
+        lables = ["Full marks"]
+    else:
+        values = [count,total_count-count]
+        lables = ["Full Marks","Partial marks"]
+    plt.clf()
+    plt.pie(values, labels=lables)
+    plt.title("Fully Correct vs Partially Correct (First Attempt)")
+    plt.savefig('static/img2.png')
+
+
+    
+
+    return render_template('usersummary.html', u_name=u_name)
