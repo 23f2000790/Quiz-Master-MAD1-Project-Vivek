@@ -44,6 +44,7 @@
                 <table class="table table-hover" id="table-body">
                   <thead>
                     <tr>
+                      <th scope="col">Subject Name</th>
                       <th scope ="col">Chapter Name</th>
                       <th scope="col">No. of Questions</th>
                       <th scope="col">Date</th>
@@ -55,6 +56,7 @@
                     {% for quiz in quizzes %}
                       {% if quiz.questions|length > 0 %}
                         <tr>
+                          <td>{{ quiz.chapter.subject.name }}</td>
                           <td>{{ quiz.chapter.name }}</td>
                           <td>{{ quiz.questions|length }}</td>
                           <td>{{ quiz.date }}</td>

@@ -8,8 +8,13 @@
 <body>
     <div id = "main">
         <div id = "canvas">
-            <div id = "form-body">
+            <div id = "form-body-que">
                 <h1 id="centre-text">New Question</h1>
+                {% if emsg %}
+                <div class="alert alert-danger text-center">
+                    {{ emsg }}
+                </div>
+                {% endif %}
                 <form action="/addquestion/{{ quiz_id }}" method="post">
                     <div class="mb-3">
                         <label for="id" class="form-label">Question id</label>

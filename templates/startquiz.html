@@ -37,9 +37,9 @@
                 </script>
                 <div id = "quiz-body">
                     <p style="margin-left: 15px; margin-top: 10px;">Question {{ current_index + 1 }} of {{ questions | length }}</p>
-                    {% if e %}
+                    {% if emsg %}
                         <div class="alert alert-danger text-center">
-                            {{ e }}
+                            {{ emsg }}
                         </div>
                     {% endif %}
                     {% with question = questions[current_index] %}
