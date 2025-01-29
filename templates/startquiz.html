@@ -27,8 +27,7 @@
                             timerElement.textContent = `${hours}:${minutes}:${seconds}`;
                             if (timeLeft <= 0) {
                                 clearInterval(timerInterval);
-                                timerElement.textContent = "Time's up!";
-                                alert("Time's up!"); 
+                                alert("Your Time is Over"); 
                             }
                             timeLeft--;
                         }, 1000);

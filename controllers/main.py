@@ -1,7 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for
 from flask import current_app as app
 from .models import *
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 import matplotlib.pyplot as plt
 import matplotlib
 matplotlib.use("Agg")
@@ -289,6 +289,9 @@ def deletequiz(quiz_id):
 @app.route('/start_quiz/<int:quiz_id>/<u_name>',methods=['GET','POST'])
 def startquiztemp(quiz_id,u_name):
     quiz = Quiz.query.filter_by(id=quiz_id).first()
+    if date.today() != quiz.date and date.today() < quiz.date:
+        emsg = "This quiz is for: " + str(quiz.date)
+        return redirect(url_for('user_dashboard',msg=emsg))
     questions =  Question.query.filter_by(quiz_id=quiz_id).all()
     noofquestions = len(questions)
     start_time = datetime.now()
