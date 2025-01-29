@@ -71,3 +71,12 @@
 #timer {
     display: inline-block;
 }
+
+#view_answer {
+    height: auto; 
+    border: 5px solid black;
+    background-color: #ffe9d8;
+    border-radius: 10px; 
+    padding-top: 10px; 
+    margin: 20px 60px 40px 50px;
+}

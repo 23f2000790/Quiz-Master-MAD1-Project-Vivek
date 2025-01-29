@@ -304,7 +304,7 @@ def startquiztemp(quiz_id,u_name):
             score2 = Score(quiz_id=quiz_id,chapter_name=quiz.chapter.name,noq=noofquestions,qdate=quiz.date,total_score=score,user_id=user.id,time_taken=total_time_taken,selected_answers=user_select)
             db.session.add(score2)
             db.session.commit()
-            score3 = Score.query.filter_by(quiz_id=quiz_id,user_id=user.id,time_taken=total_time_taken).first()
+            score3 = Score.query.filter_by(quiz_id=quiz_id,user_id=user.id).order_by(Score.id.desc()).first()
             for i in questions:
                 userdata = Userdata(user_id=user.id,quiz_id=quiz_id,chapter_name=quiz.chapter.name,score_id=score3.id,question_id=i.id,title=i.title,question_statement=i.question_statement,option1=i.option1,option2=i.option2,option3=i.option3,option4=i.option4,correct_option=i.correct_option)
                 db.session.add(userdata)
@@ -380,8 +380,8 @@ def search(u_name):
 def viewanswers(quiz_id,u_name,score_id):
     quiz = Quiz.query.filter_by(id=quiz_id).first()
     
-    questions = Userdata.query.filter_by(quiz_id=quiz_id,score_id=score_id)
-    for i in questions:
+    userdata = Userdata.query.filter_by(quiz_id=quiz_id,score_id=score_id)
+    for i in userdata:
         subquiz_id = i.quiz_id
         chaptername = i.chapter_name
         break
@@ -390,7 +390,7 @@ def viewanswers(quiz_id,u_name,score_id):
     L=[]
     for i in score.selected_answers:
         L.append(int(i))
-    return render_template('view_answers.html',quiz=quiz,questions=questions,u_name=u_name,L=L,subquiz_id=subquiz_id,chaptername=chaptername)
+    return render_template('view_answers.html',quiz=quiz,questions=userdata,u_name=u_name,L=L,subquiz_id=subquiz_id,chaptername=chaptername)
 
 @app.route('/inspect/<int:user_id>')
 def inspect(user_id):
