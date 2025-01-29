@@ -77,7 +77,12 @@ def user_dashboard():
         dts = quiz_date.split(',')
         quizzes = Quiz.query.filter(Quiz.date.in_(dts)).all()
         return render_template('user_dashboard.html',quizzes=quizzes,u_name=u_name)
+    
     quizzes = Quiz.query.all()
+    if 'msg' in request.args:
+        emsg = request.args.get('msg')
+        return render_template('user_dashboard.html',quizzes=quizzes,u_name=u_name,msg=emsg)
+    
     return render_template('user_dashboard.html',quizzes=quizzes,u_name=u_name)
 
 @app.route('/scores/<u_name>')
@@ -384,7 +389,7 @@ def users_data():
     return render_template('userdata.html',users=users,q=q)
 
 @app.route('/search/<u_name>')
-def search(u_name):
+def usersearch(u_name):
     search_word = request.args.get('search_word')
     sw = "%" + search_word.lower() +"%"
     chapter = Chapter.query.filter(Chapter.name.like(sw)).all()
@@ -399,6 +404,9 @@ def search(u_name):
         for i in dte:
             st = st + str(i.date) + ','
         return redirect(url_for('user_dashboard',quiz_date=st,u_name=u_name))
+    if not chapter and not dte:
+        errormsg = "No information found for: "+search_word
+        return redirect(url_for('user_dashboard',msg=errormsg,u_name=u_name))
 
         
 

@@ -7,9 +7,9 @@
 </head>
 <body>
     <div id = "main">
-        <div id = "canvas">
+        <div id = "canvas" style="background-color: black;">
             <div>
-                <h1 id="centre-text" style="margin-top: 15px;">Answers for:&ensp;Quiz{{subquiz_id}}- {{chaptername}}</h1><br>
+                <h1 id="centre-text" style="margin-top: 15px; color: white;">Answers for:&ensp;Quiz{{subquiz_id}}- {{chaptername}}</h1><br>
                 {% for i in range(L|length) %}
                     {% set question = questions[i] %}
                     <div id="view_answer">
@@ -21,8 +21,8 @@
                             <h4>c: {{question.option3}}</h4>
                             <h4>d: {{question.option4}}</h4>
                         </div>
-                        <h4 style="margin-left: 50px;">Your Answer: {{L[i]}}</h4>
-                        <h4 style="margin-left: 50px;">Correct Option: {{question.correct_option}}</h4><br><br>
+                        <h4 style="margin-left: 1150px;">Your Answer: {{L[i]}}</h4>
+                        <h4 style="margin-left: 1150px;">Correct Option: {{question.correct_option}}</h4><br>
                         </div>
                     </div>
                 {% endfor %}
