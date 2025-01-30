@@ -34,11 +34,6 @@
                   <span>&ensp; Welcome {{u_name}}</span>
                 </div>
               </nav>
-              {% if msg %}
-                <div class="alert alert-danger text-center">
-                  {{ msg }}
-                </div>
-              {% endif %}
               <h2 style="text-align: center;margin-top: 5px;">Upcoming Quizzes</h2>
               <div class="table-div" id="canvas">
                 <table class="table table-hover" id="table-body">
@@ -53,21 +48,40 @@
                     </tr>
                   </thead>
                   <tbody>
-                    {% for quiz in quizzes %}
-                      {% if quiz.questions|length > 0 %}
-                        <tr>
-                          <td>{{ quiz.chapter.subject.name }}</td>
-                          <td>{{ quiz.chapter.name }}</td>
-                          <td>{{ quiz.questions|length }}</td>
-                          <td>{{ quiz.date }}</td>
-                          <td>{{ quiz.time }}</td>
-                          <td>
-                            <a href='/view/{{ quiz.id }}/{{ u_name }}' class="btn btn-primary">View</a>
-                            <a href='/start_quiz/{{ quiz.id }}/{{ u_name }}' class="btn btn-success">Start</a>
+                    {% if quizzes %}
+                      {% for quiz in quizzes %}
+                        {% if quiz.questions|length > 0 %}
+                          <tr>
+                            {% if msg %}
+                              <td colspan="6">
+                                <div class="alert alert-danger text-center">
+                                  {{ msg }}
+                                </div>
+                              </td>
+                            {% endif %}
+                            <td>{{ quiz.chapter.subject.name }}</td>
+                            <td>{{ quiz.chapter.name }}</td>
+                            <td>{{ quiz.questions|length }}</td>
+                            <td>{{ quiz.date }}</td>
+                            <td>{{ quiz.time }}</td>
+                            <td>
+                              <a href='/view/{{ quiz.id }}/{{ u_name }}' class="btn btn-primary">View</a>
+                              <a href='/start_quiz/{{ quiz.id }}/{{ u_name }}' class="btn btn-success">Start</a>
+                            </td>
+                          </tr>
+                        {% endif %}
+                      {% endfor %}
+                    {% else %}
+                      <tr>
+                        {% if msg %}
+                          <td colspan="6">
+                            <div class="alert alert-danger text-center">
+                              {{ msg }}
+                            </div>
                           </td>
-                        </tr>
-                      {% endif %}
-                    {% endfor %}
+                        {% endif %}
+                      </tr>
+                    {% endif %}
                   </tbody>
                 </table>
               </div>

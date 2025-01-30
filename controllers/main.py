@@ -87,11 +87,12 @@ def user_dashboard():
         quizzes = Quiz.query.filter(Quiz.date.in_(dts)).all()
         return render_template('user_dashboard.html',quizzes=quizzes,u_name=u_name)
     
-    quizzes = Quiz.query.all()
     if 'msg' in request.args:
+        quizzes=[]
         emsg = request.args.get('msg')
         return render_template('user_dashboard.html',quizzes=quizzes,u_name=u_name,msg=emsg)
-    
+
+    quizzes = Quiz.query.all()
     return render_template('user_dashboard.html',quizzes=quizzes,u_name=u_name)
 
 @app.route('/scores/<u_name>')
@@ -291,7 +292,7 @@ def startquiztemp(quiz_id,u_name):
     quiz = Quiz.query.filter_by(id=quiz_id).first()
     if date.today() != quiz.date and date.today() < quiz.date:
         emsg = "This quiz is for: " + str(quiz.date)
-        return redirect(url_for('user_dashboard',msg=emsg))
+        return redirect(url_for('user_dashboard',msg=emsg,u_name=u_name))
     questions =  Question.query.filter_by(quiz_id=quiz_id).all()
     noofquestions = len(questions)
     start_time = datetime.now()
@@ -432,6 +433,7 @@ def usersearch(u_name):
         for i in chapter:
             st += str(i.id)
         return redirect(url_for('user_dashboard',chapter=st,u_name=u_name))
+    
     subject = Subject.query.filter(Subject.name.like(sw)).all()
     if subject:
         st = ''
