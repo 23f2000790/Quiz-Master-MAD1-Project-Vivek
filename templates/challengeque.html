@@ -43,29 +43,37 @@
                 </div>
             </nav>
               
-            <h2 style="text-align: center;margin-top: 5px;">Removed Users</h2>
+            <h2 style="text-align: center;margin-top: 5px;">Challenge</h2>
             <div class="table-div" id="canvas">
-              {% if users %}
+              {% if challenge %}
                 <table class="table table-hover" id="table-body">
                   <thead>
                     <tr>
-                      <th scope="col">User</th>
+                      <th scope="col">Username</th>
+                      <th scope ="col">Quiz ID</th>
+                      <th scope="col">Date</th>
+                      <th scope="col">Time</th>
+                      <th scope="col">Title</th>
                       <th scope="col">Action</th>
                     </tr>
                   </thead>
                   <tbody>
-                      {% for user in users %}
-                        <tr>
-                          <td>{{ user.fullname }}</td>
-                          <td>
-                            <a href='/reapprove/{{ user.id }}' class="btn btn-primary">Re Approve</a>
-                          </td>
-                        </tr>
-                      {% endfor %}
+                    {% for ch in challenge %}
+                      <tr>
+                        <td>{{ ch.userdata.user.username }}</td>
+                        <td>{{ ch.userdata.quiz_id }}</td>
+                        <td>{{ ch.userdata.date }}</td>
+                        <td>{{ ch.userdata.time }}</td>
+                        <td>{{ ch.userdata.title }}</td>
+                        <td>
+                          <a href='/viewchallenge/{{ch.id}}' class="btn btn-primary">View</a>
+                        </td>
+                      </tr>
+                    {% endfor %}
                   </tbody>
                 </table>
               {% else %}
-                <p style="text-align: center;"> No Data to Display </p>
+                  <p style="text-align: center;"> No Data to Display </p>
               {% endif %}
             </div>
         </div>

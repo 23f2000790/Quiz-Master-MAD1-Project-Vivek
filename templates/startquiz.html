@@ -24,7 +24,7 @@
                             const remainder = timeLeft % 3600;
                             const minutes = Math.floor(remainder / 60);
                             const seconds = remainder % 60;
-                            timerElement.textContent = `${hours}:${minutes}:${seconds}`;
+                            timerElement.textContent = "0"+`${hours}:${minutes}:${seconds}`;
                             if (timeLeft <= 0) {
                                 clearInterval(timerInterval);
                                 alert("Your Time is Over"); 

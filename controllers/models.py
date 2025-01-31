@@ -8,8 +8,8 @@ class User(db.Model):
     qualification = db.Column(db.String(), nullable=False)
     dob = db.Column(db.Date(),nullable = False)
     type = db.Column(db.String(), default="user")
-    score = db.relationship('Score', backref='User')
-    userdata = db.relationship('Userdata', backref='User')
+    score = db.relationship('Score', backref='user')
+    userdata = db.relationship('Userdata', backref='user')
 
 class Subject(db.Model):
     id = db.Column(db.Integer(), primary_key=True)
@@ -53,13 +53,16 @@ class Score(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     time_taken = db.Column(db.String())
     selected_answers = db.Column(db.String())
+    userdata = db.relationship('Userdata', backref='score')
 
 class Userdata(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     quiz_id = db.Column(db.Integer)
+    date = db.Column(db.Date())
+    time = db.Column(db.String(10))  
     chapter_name = db.Column(db.String())
-    score_id = db.Column(db.Integer)
+    score_id = db.Column(db.Integer, db.ForeignKey('score.id'))
     question_id = db.Column(db.Integer)
     title = db.Column(db.String())
     question_statement = db.Column(db.String())
@@ -68,3 +71,10 @@ class Userdata(db.Model):
     option3 = db.Column(db.String())
     option4 = db.Column(db.String())
     correct_option = db.Column(db.Integer)
+    challenge = db.relationship('Challenge', backref='userdata')
+
+class Challenge(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    userdata_id = db.Column(db.Integer, db.ForeignKey('userdata.id'))
+    user_co = db.Column(db.Integer)
+    explanation = db.Column(db.String())

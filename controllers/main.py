@@ -214,8 +214,8 @@ def quizman():
             emsg = "Please set a time for the quiz!"
             return redirect(url_for('addquiz',emsg=emsg))
         datecon = datetime.strptime(date, '%Y-%m-%d').date()
-        timecon = datetime.strptime(time, '%H:%M:%S').time() 
-        time_str = timecon.strftime('%H:%M:%S')
+        timecon = datetime.strptime(time, '%H:%M').time() 
+        time_str = timecon.strftime('%H:%M')
         quiz = Quiz.query.filter_by(chapter_id=chapter_id).first()
         chapter = Chapter.query.get(chapter_id)
         if not chapter_id:
@@ -314,7 +314,7 @@ def startquiztemp(quiz_id,u_name):
         time_taken = int(request.args.get('time_taken'))
 
     if 'quiz_timer' not in request.args:
-        quiz_timer = int(time[0])*3600 + int(time[1])*60 + int(time[2])
+        quiz_timer = int(time[0])*3600 + int(time[1])*60 
     else:
         quiz_timer = int(request.args.get('quiz_timer'))
 
@@ -356,7 +356,7 @@ def startquiztemp(quiz_id,u_name):
             db.session.commit()
             score3 = Score.query.filter_by(quiz_id=quiz_id,user_id=user.id).order_by(Score.id.desc()).first()
             for i in questions:
-                userdata = Userdata(user_id=user.id,quiz_id=quiz_id,chapter_name=quiz.chapter.name,score_id=score3.id,question_id=i.id,title=i.title,question_statement=i.question_statement,option1=i.option1,option2=i.option2,option3=i.option3,option4=i.option4,correct_option=i.correct_option)
+                userdata = Userdata(user_id=user.id,quiz_id=quiz_id,date=quiz.date,time=quiz.time,chapter_name=quiz.chapter.name,score_id=score3.id,question_id=i.id,title=i.title,question_statement=i.question_statement,option1=i.option1,option2=i.option2,option3=i.option3,option4=i.option4,correct_option=i.correct_option)
                 db.session.add(userdata)
             db.session.commit()
             score=0
@@ -466,7 +466,7 @@ def viewanswers(quiz_id,u_name,score_id):
     L=[]
     for i in score.selected_answers:
         L.append(int(i))
-    return render_template('view_answers.html',quiz=quiz,questions=userdata,u_name=u_name,L=L,subquiz_id=subquiz_id,chaptername=chaptername)
+    return render_template('view_answers.html',quiz=quiz,questions=userdata,u_name=u_name,L=L,subquiz_id=subquiz_id,chaptername=chaptername,score=score)
 
 @app.route('/inspect/<int:user_id>')
 def inspect(user_id):
@@ -514,6 +514,28 @@ def reapprove(user_id):
 def usersummary(u_name):
     user = User.query.filter_by(username=u_name).first()
     score = Score.query.filter_by(user_id=user.id).all()
+    avgtime = []
+    name_time = {}
+    for i in score:
+        obj = datetime.strptime(i.time_taken, "%H:%M:%S")
+        sec = obj.hour*3600 + obj.minute*60 + obj.second
+        if i.chapter_name not in name_time:
+            name_time[i.chapter_name] = sec
+            avgtime.append(sec)
+
+    avgt = sum(avgtime)/len(avgtime)
+    average_time_taken = "0"+str(timedelta(seconds=int(avgt)))
+
+    ch_name = list(name_time.keys())
+    tt = list(name_time.values())
+    plt.clf()
+    plt.plot(ch_name, tt, marker='o', linestyle='-', color='b', label='Line 1')
+    plt.xlabel("Chapter Name")
+    plt.ylabel("Time Taken(Seconds)")
+    plt.title("Time Taken for each chapter")
+    plt.savefig('static/img3.png')
+
+
     if not score:
         message = "Please Attempt some quizzes to get summary!"
         return render_template('usersummary.html',msg=message,u_name=u_name)
@@ -529,7 +551,7 @@ def usersummary(u_name):
     first_score = list(chapter_score.values())
     plt.clf()
     plt.bar(chapter_names, first_score)
-    plt.xlabel("Chapters")
+    plt.xlabel("Chapter Name")
     plt.ylabel("Marks")
     plt.title("Marks Obtained in first attempt")
     plt.savefig('static/img.png')
@@ -557,10 +579,58 @@ def usersummary(u_name):
         lables = ["Full Marks","Partial marks"]
     plt.clf()
     plt.pie(values, labels=lables)
-    plt.title("Fully Correct vs Partially Correct (First Attempt)")
+    plt.title("Accuracy in First Attempt")
     plt.savefig('static/img2.png')
 
+    return render_template('usersummary.html', u_name=u_name,avgt=average_time_taken)
 
+@app.route('/challenge/<int:q_id>/<int:qz_id>/<u_name>/<int:score_id>')
+def challenge(q_id,qz_id,u_name,score_id):
+    question = Userdata.query.filter_by(quiz_id=qz_id,question_id=q_id).first()
+    return render_template('challenge.html',question=question,u_name=u_name,score_id=score_id)
+
+@app.route('/challengeanswer/<int:qz_id>/<int:q_id>/<u_name>/<int:score_id>/<int:user_id>', methods = ['GET','POST'])
+def challengeanswer(qz_id,q_id,u_name,score_id,user_id):
+    if request.form.get('submit') == "Submit":
+        eco = request.form.get('uco')
+        exp = request.form.get('exp')
+        userdata = Userdata.query.filter_by(quiz_id=qz_id,question_id=q_id).first()
+        challenge = Challenge(userdata_id=userdata.id,user_co=eco,explanation=exp)
+        db.session.add(challenge)
+        db.session.commit()
+        return redirect(url_for('viewanswers',quiz_id=qz_id,u_name=u_name,score_id=score_id))
+    return redirect(url_for('viewanswers',quiz_id=qz_id,u_name=u_name,score_id=score_id))
+
+@app.route('/challengeque')
+def challengeque():
+    challenge = Challenge.query.all()
+    return render_template('challengeque.html',challenge=challenge)
+
+@app.route('/viewchallenge/<int:ch_id>')
+def vc(ch_id):
+    challenge = Challenge.query.filter_by(id=ch_id).first()
+    return render_template('viewch.html',ch=challenge)
+
+@app.route('/acceptchallenge/<int:ch_id>')
+def ach(ch_id):
+    challenge = Challenge.query.filter_by(id=ch_id).first()
+    newco = challenge.user_co
+    question = Question.query.filter_by(id=challenge.userdata.question_id).first()
+    if question:
+        question.correct_option = newco
+        challenge.userdata.correct_option = newco
+        challenge.userdata.score.total_score += 1
+        db.session.commit()
+        return redirect(url_for('rch',ch_id=ch_id))
     
+    challenge.userdata.correct_option = newco
+    db.session.commit()
+    return redirect(url_for('rch',ch_id=ch_id))
 
-    return render_template('usersummary.html', u_name=u_name)
+@app.route('/rejectchallenge/<int:ch_id>')
+def rch(ch_id):
+    challenge = Challenge.query.filter_by(id=ch_id).first()
+    db.session.delete(challenge)
+    db.session.commit()
+    return redirect(url_for('challengeque'))
+    

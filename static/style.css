@@ -10,14 +10,21 @@
     min-height: 694px;
     position: relative;
 }
+#bg {
+    background-image: url('/static/quizbg.jpg');
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: top;
+}
 #form-body {
+    backdrop-filter: blur(100px);
     width: 396px;
     height: auto;
     border: 2px solid grey;
     margin: auto;
     margin-top: 140px;
     padding: 10px;
-    border-radius: 7%;
+    border-radius: 20px;
 }
 
 #form-body-que{
@@ -28,7 +35,7 @@
     margin-top: 25px;
     margin-bottom: 25px;
     padding: 10px;
-    border-radius: 5%;
+    border-radius: 20px;
 }
 
 
@@ -37,13 +44,14 @@
     padding: 3px;
 }
 #form-body-register {
+    backdrop-filter: blur(100px);
     width: 424px;
     height: auto;
     border: 2px solid grey;
     margin: auto;
     margin-top: 50px;
     padding: 10px;
-    border-radius: 7%;
+    border-radius: 20px;
 }
 #table-body {
     margin-left: 5px;
@@ -53,16 +61,18 @@
 
 }
 .table-div {
+    background-color:#E3D9B4 !important;
     width: 95% !important;
     margin-top: 20px !important;
     margin-bottom: 20px !important;
     height: auto !important;
-    border-radius: 10px; 
-    padding: 15px; 
+    border-radius: 20px; 
+    padding: 25px; 
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.477); 
 }
 
 .table th, td {
+    background-color: #D9DEF1 !important;
     padding: 10px;
     text-align: center; 
 }
@@ -89,7 +99,7 @@
     height: auto; 
     font-size: 1.5em;
     background-color: #202020;
-    border-radius: 10px; 
+    border-radius: 20px; 
     padding-top: 10px; 
     margin: 20px 60px 40px 50px;
 }
@@ -100,7 +110,13 @@
     color: white;
     font-size: 1.5em;
     background-color: #202020;
-    border-radius: 10px; 
+    border-radius: 20px; 
     padding-top: 10px; 
     margin: 20px 60px 40px 50px;
 }
+
+#nav {
+    background-color: 	#d8eeff; 
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.477);
+}
+
