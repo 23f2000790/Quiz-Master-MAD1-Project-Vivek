@@ -23,13 +23,19 @@ def user_login():
                 if above_user.type == "admin":
                     return redirect('/admin')
                 elif above_user.type == "removed":
-                    return "You have been removed, Contact the Admin if this is a mistake"
+                    emsg =  "You have been removed, Contact the Admin if this is a mistake"
+                    return redirect(url_for('user_login',emsg=emsg))
                 else:
                     return redirect(url_for('user_dashboard', u_name = u_name))
             else:
-                return "Incorrect Password!"
+                emsg = "Incorrect Password!"
+                return redirect(url_for('user_login',emsg=emsg))
         else:
-            return "User Does not Exist!"
+            emsg = "User Does not Exist!"
+            return redirect(url_for('user_login',emsg=emsg))
+    if 'emsg' in request.args:
+        emsg = request.args.get('emsg')
+        return render_template('login.html',emsg=emsg)
     return render_template('login.html')
 
 
@@ -44,13 +50,16 @@ def user_register():
         dobcon = datetime.strptime(dob, '%Y-%m-%d').date()
         above_user = User.query.filter_by(username=u_name).first()
         if above_user:
-            return "User Already Exists :("
+            emsg = "User Already Exists :("
+            return redirect(url_for('register',emsg=emsg))
         else:
             new_user = User(username=u_name,password=pwd,fullname=fn,qualification=qfn,dob=dobcon)
             db.session.add(new_user)
             db.session.commit()
             return redirect(url_for('user_dashboard', u_name = u_name))
-
+    if 'emsg' in request.args:
+        emsg = request.args.get('emsg')
+        return render_template('register.html',emsg=emsg)
     return render_template('register.html')
 
 
@@ -104,6 +113,16 @@ def scores(u_name):
 
 @app.route('/admin',methods=['GET','POST'])
 def admin_dashboard():
+    if 'subject' in request.args:
+        subject = str(request.args.get('subject'))
+        ids = []
+        for obj in subject:
+            ids.append(int(obj))
+        subjects = Subject.query.filter(Subject.id.in_(ids)).all()
+        return render_template('admin_dashboard.html',subjects=subjects)
+    elif 'emsg' in request.args:
+        emsg = request.args.get('emsg')
+        return render_template('admin_dashboard.html',subjects=[],emsg=emsg)
     subjects = Subject.query.all()
     if subjects:
         return render_template('admin_dashboard.html',subjects=subjects)
@@ -193,6 +212,16 @@ def addquiz():
 
 @app.route('/quizmantemp')
 def quizmantemp():
+    if 'chapter' in request.args:
+        chapter = request.args.get('chapter')
+        ids = []
+        for obj in chapter:
+            ids.append(int(obj))
+        quizes = Quiz.query.filter(Quiz.chapter_id.in_(ids)).all()
+        return render_template('quiz_management.html',quizes=quizes)
+    elif 'emsg' in request.args:
+        emsg = request.args.get('emsg')
+        return render_template('quiz_management.html',quizes=[],emsg=emsg)
     quizes = Quiz.query.all()
     if quizes:
         return render_template('quiz_management.html',quizes=quizes)
@@ -285,6 +314,36 @@ def deletequiz(quiz_id):
     db.session.delete(quiz)
     db.session.commit()
     return redirect(url_for('quizmantemp'))
+
+@app.route('/editquiz/<int:quiz_id>')
+def editquiz(quiz_id):
+    quiz = Quiz.query.filter_by(id=quiz_id).first()
+    if 'emsg' in request.args:
+        emsg = request.args.get('emsg')
+        return render_template('editquiz.html',quiz=quiz,emsg=emsg)
+    return render_template('editquiz.html',quiz=quiz)
+
+@app.route('/editquiz2/<int:quiz_id>/<int:chapter_id>',methods=['GET','POST'])
+def editquiz2(quiz_id,chapter_id):
+    if request.form.get('submit') == 'Add':
+        date = request.form.get('date')
+        time = request.form.get('time')
+        if not date:
+            emsg = "Please specify a date for the quiz!"
+            return redirect(url_for('editquiz',emsg=emsg))
+        if not time:
+            emsg = "Please set a time for the quiz!"
+            return redirect(url_for('editquiz',emsg=emsg))
+        datecon = datetime.strptime(date, '%Y-%m-%d').date()
+        timecon = datetime.strptime(time, '%H:%M').time() 
+        time_str = timecon.strftime('%H:%M')
+        quiz = Quiz.query.filter_by(chapter_id=chapter_id).first()
+        quiz.date = datecon
+        quiz.time = time_str
+        db.session.commit()
+        return redirect(url_for('quizmantemp'))
+    return redirect(url_for('quizmantemp'))
+    
 
 
 @app.route('/start_quiz/<int:quiz_id>/<u_name>',methods=['GET','POST'])
@@ -379,6 +438,23 @@ def deletesubject(subject_id):
     subject = Subject.query.get_or_404(subject_id)
     db.session.delete(subject)
     db.session.commit()
+    return redirect(url_for('admin_dashboard'))
+
+@app.route('/editsubject/<int:subject_id>')
+def editsubject(subject_id):
+    subject = Subject.query.filter_by(id=subject_id).first()
+    return render_template('editsubject.html',subject=subject)
+
+@app.route('/editsubject2/<int:subject_id>',methods=['GET','POST'])
+def editsubject2(subject_id):
+    if request.form.get('submit') == 'Confirm':
+        name = request.form.get('name')
+        dsc = request.form.get('dsc')
+        sub = Subject.query.filter_by(id=subject_id).first()
+        sub.name = name
+        sub.description = dsc
+        db.session.commit()
+        return redirect(url_for('admin_dashboard'))
     return redirect(url_for('admin_dashboard'))
 
 @app.route('/editquestion/<int:question_id>/<int:quiz_id>',methods=['GET','POST'])
@@ -634,3 +710,28 @@ def rch(ch_id):
     db.session.commit()
     return redirect(url_for('challengeque'))
     
+@app.route('/adminsearch/ad')
+def adminsearch():
+    searchword = request.args.get('searchword')
+    sw = "%" + searchword.lower() +"%"
+    subject = Subject.query.filter(Subject.name.like(sw)).all()
+    if subject:
+        st = ''
+        for i in subject:
+            st += str(i.id)
+        return redirect(url_for('admin_dashboard',subject=st))
+    emsg = "No results found"
+    return redirect(url_for('admin_dashboard',emsg=emsg))
+
+@app.route('/adminsearch/qm')
+def adminsearchqm():
+    searchword = request.args.get('search_word')
+    sw = "%" + searchword.lower() +"%"
+    chapter = Chapter.query.filter(Chapter.name.like(sw)).all()
+    if chapter:
+        st = ''
+        for i in chapter:
+            st += str(i.id)
+        return redirect(url_for('quizmantemp',chapter=st))
+    emsg = "No results found"
+    return redirect(url_for('quizmantemp',emsg=emsg))

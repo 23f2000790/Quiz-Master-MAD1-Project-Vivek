@@ -34,8 +34,8 @@
                         <a class="nav-link active" aria-current="page" href="/">Logout</a>
                       </li>
                     </ul>
-                    <form class="d-flex" role="search">
-                      <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search" style="background-color: #ece6e3;">
+                    <form class="d-flex" action="/adminsearch/qm">
+                      <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search" name="search_word" style="background-color: #ece6e3;">
                       <button class="btn btn-outline-success" type="submit">Search</button>
                     </form>
                   </div>
@@ -75,8 +75,9 @@
                         </tbody>
                       </table>
                       <div class="text-center">
-                        <a href="/addquestion/{{ quiz.id }}" class="btn btn-success float-end">Add Question</a>
-                        <a href="/deletequiz/{{ quiz.id }}" class="btn btn-danger float-start">Delete Quiz</a>
+                        <a href="/addquestion/{{ quiz.id }}" class="btn btn-success">Add Question</a>
+                        <a href="/editquiz/{{ quiz.id }}" class="btn btn-secondary">Edit Quiz</a>
+                        <a href="/deletequiz/{{ quiz.id }}" class="btn btn-danger">Delete Quiz</a>
                       </div>
                     </div>
                   </div>
@@ -84,6 +85,16 @@
                 </div>
                 {% endif %}
               </div>
+              {% if not quizes and not emsg %}
+              <div class="alert alert-primary text-center">
+                <p>No Quiz available. Please add a new Quiz.</p>
+              </div>
+              {% endif %}
+              {% if emsg %}
+              <div class="alert alert-danger text-center">
+                <p>{{emsg}}</p>
+              </div>
+              {% endif %}
               <div class="text-center">
                 <a href="/addquiz" class="btn btn-primary" style="position: relative;; margin-top: 10px;">Add Quiz</a>
               </div>

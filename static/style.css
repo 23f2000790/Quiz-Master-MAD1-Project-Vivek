@@ -120,3 +120,11 @@
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.477);
 }
 
+#form-body-ch {
+    width: 396px;
+    height: fit-content;
+    border: 2px solid grey;
+    margin: auto;
+    padding: 10px;
+    border-radius: 20px;
+}

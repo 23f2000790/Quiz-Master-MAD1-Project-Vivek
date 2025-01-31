@@ -23,7 +23,9 @@
                         </div>
                         <h4 style="margin-left: 1150px;">Your Answer: {{L[i]}}</h4>
                         <h4 style="margin-left: 1150px;">Correct Option: {{question.correct_option}}</h4>
+                        {% if L[i] != question.correct_option %}
                         <a href="/challenge/{{question.id}}/{{subquiz_id}}/{{u_name}}/{{score.id}}" class="btn btn-primary" style="margin-left: 1150px;margin-bottom: 10px;">Challenge</a>
+                        {% endif %}
                         </div>
                     </div>
                 {% endfor %}

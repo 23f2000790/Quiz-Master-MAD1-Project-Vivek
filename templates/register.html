@@ -11,6 +11,11 @@
             <div id = "form-body-register">
                 <h1 id="centre-text">Registration Form</h1>
                 <form action="/register" method="post">
+                    {% if emsg %}
+                    <div class="alert alert-danger text-center">
+                        {{ emsg }}
+                    </div>
+                    {% endif %}
                     <div class="mb-3">
                         <label for="username" class="form-label">Username</label>
                         <input type="text" class="form-control" id="username" placeholder = "E-mail" name="username" >

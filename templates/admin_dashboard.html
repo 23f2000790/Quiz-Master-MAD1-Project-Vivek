@@ -34,8 +34,8 @@
                         <a class="nav-link active" aria-current="page" href="/">Logout</a>
                       </li>
                     </ul>
-                    <form class="d-flex" role="search">
-                      <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search" style="background-color: #ece6e3;">
+                    <form class="d-flex" action="/adminsearch/ad">
+                      <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search" name="searchword" style="background-color: #ece6e3;">
                       <button class="btn btn-outline-success" type="submit">Search</button>
                     </form>
                   </div>
@@ -75,8 +75,9 @@
                         </tbody>
                       </table>
                       <div class="text-center">
-                        <a href= '/addchapter/{{subject.id}}' class="btn btn-success float-end">Add Chapter</a>
-                        <a href="/deletesubject/{{ subject.id }}" class="btn btn-danger float-start">Delete Subject</a>
+                        <a href= '/addchapter/{{subject.id}}' class="btn btn-success">Add Chapter</a>
+                        <a href="/editsubject/{{ subject.id }}" class="btn btn-secondary">Edit Subject</a>
+                        <a href="/deletesubject/{{ subject.id }}" class="btn btn-danger">Delete Subject</a>
                       </div>
                     </div>
                   </div>
@@ -84,9 +85,14 @@
                 </div>
                 {% endif %}
               </div>
-              {% if not subjects %}
+              {% if not subjects and not emsg %}
               <div class="alert alert-primary text-center">
                 <p>No subjects available. Please add a new subject.</p>
+              </div>
+              {% endif %}
+              {% if emsg %}
+              <div class="alert alert-danger text-center">
+                <p>{{emsg}}</p>
               </div>
               {% endif %}
               <div class="text-center">

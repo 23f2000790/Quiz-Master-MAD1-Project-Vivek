@@ -11,6 +11,11 @@
             <div id = "form-body">
                 <h1 id="centre-text">Login Form</h1>
                 <form action="/userlogin" method="post">
+                    {% if emsg %}
+                    <div class="alert alert-danger text-center">
+                        {{ emsg }}
+                    </div>
+                    {% endif %}
                     <div class="mb-3">
                         <label for="Username" class="form-label">Username</label>
                         <input type="text" class="form-control" id="username" placeholder = "example123" name="u_name">
