@@ -16,7 +16,7 @@
                     <h5>c: {{question.option3}}</h5>
                     <h5>d: {{question.option4}}</h5><br>
                     <h5>Correct Option: {{question.correct_option}}</h4><br>
-                    <form action="/challengeanswer/{{question.quiz_id}}/{{question.question_id}}/{{u_name}}/{{score_id}}/{{question.user_id}}" method="post">
+                    <form action="/challengeanswer/{{question.quiz_id}}/{{question.id}}/{{u_name}}/{{score_id}}/{{question.user_id}}" method="post">
                         <div class="mb-3">
                             <label for="uco" class="form-label">Your Correct Option</label>
                             <input type="text" class="form-control" id="uco" name="uco">

@@ -97,7 +97,7 @@ def user_dashboard():
         return render_template('user_dashboard.html',quizzes=quizzes,u_name=u_name)
     
     if 'msg' in request.args:
-        quizzes=[]
+        quizzes = Quiz.query.all()
         emsg = request.args.get('msg')
         return render_template('user_dashboard.html',quizzes=quizzes,u_name=u_name,msg=emsg)
 
@@ -332,7 +332,7 @@ def editquiz(quiz_id):
 
 @app.route('/editquiz2/<int:quiz_id>/<int:chapter_id>',methods=['GET','POST'])
 def editquiz2(quiz_id,chapter_id):
-    if request.form.get('submit') == 'Add':
+    if request.form.get('submit') == 'Confirm':
         date = request.form.get('date')
         time = request.form.get('time')
         if date:
@@ -684,17 +684,17 @@ def usersummary(u_name):
 
     return render_template('usersummary.html', u_name=u_name,avgt=average_time_taken)
 
-@app.route('/challenge/<int:q_id>/<int:qz_id>/<u_name>/<int:score_id>')
-def challenge(q_id,qz_id,u_name,score_id):
-    question = Userdata.query.filter_by(quiz_id=qz_id,question_id=q_id).first()
+@app.route('/challenge/<int:ud_id>/<int:qz_id>/<u_name>/<int:score_id>')
+def challenge(ud_id,qz_id,u_name,score_id):
+    question = Userdata.query.filter_by(quiz_id=qz_id,id=ud_id).first()
     return render_template('challenge.html',question=question,u_name=u_name,score_id=score_id)
 
-@app.route('/challengeanswer/<int:qz_id>/<int:q_id>/<u_name>/<int:score_id>/<int:user_id>', methods = ['GET','POST'])
-def challengeanswer(qz_id,q_id,u_name,score_id,user_id):
+@app.route('/challengeanswer/<int:qz_id>/<int:ud_id>/<u_name>/<int:score_id>/<int:user_id>', methods = ['GET','POST'])
+def challengeanswer(qz_id,ud_id,u_name,score_id,user_id):
     if request.form.get('submit') == "Submit":
         eco = request.form.get('uco')
         exp = request.form.get('exp')
-        userdata = Userdata.query.filter_by(quiz_id=qz_id,question_id=q_id).first()
+        userdata = Userdata.query.filter_by(quiz_id=qz_id,id=ud_id).first()
         challenge = Challenge(userdata_id=userdata.id,user_co=eco,explanation=exp)
         db.session.add(challenge)
         db.session.commit()
@@ -716,15 +716,26 @@ def ach(ch_id):
     challenge = Challenge.query.filter_by(id=ch_id).first()
     newco = challenge.user_co
     question = Question.query.filter_by(id=challenge.userdata.question_id).first()
+    score = Score.query.filter_by(quiz_id=challenge.userdata.quiz_id).all()
     if question:
         question.correct_option = newco
-        challenge.userdata.correct_option = newco
-        challenge.userdata.score.total_score += 1
-        db.session.commit()
-        return redirect(url_for('rch',ch_id=ch_id))
-    
-    challenge.userdata.correct_option = newco
+    for s in score:
+        ud = Userdata.query.filter_by(score_id=s.id,question_id=challenge.userdata.question_id).all()
+        for i in ud:
+            i.correct_option = newco
+        ques = Userdata.query.filter_by(quiz_id=s.quiz_id,score_id=s.id).all()
+        new_mark = 0
+        index = 0
+        L = []
+        for i in s.selected_answers:
+            L.append(int(i))
+        for j in ques:
+            if j.correct_option == L[index]:
+                new_mark += 1
+            index += 1
+        s.total_score = new_mark
     db.session.commit()
+    
     return redirect(url_for('rch',ch_id=ch_id))
 
 @app.route('/rejectchallenge/<int:ch_id>')

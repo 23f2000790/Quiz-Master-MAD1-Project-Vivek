@@ -51,13 +51,6 @@
                       {% for quiz in quizzes %}
                         {% if quiz.questions|length > 0 %}
                           <tr>
-                            {% if msg %}
-                              <td colspan="6">
-                                <div class="alert alert-danger text-center">
-                                  {{ msg }}
-                                </div>
-                              </td>
-                            {% endif %}
                             <td>{{ quiz.chapter.subject.name }}</td>
                             <td>{{ quiz.chapter.name }}</td>
                             <td>{{ quiz.questions|length }}</td>
@@ -70,7 +63,6 @@
                           </tr>
                         {% endif %}
                       {% endfor %}
-                    {% else %}
                       <tr>
                         {% if msg %}
                           <td colspan="6">

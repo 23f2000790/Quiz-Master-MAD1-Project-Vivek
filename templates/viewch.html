@@ -17,9 +17,11 @@
                 <h4>Correct Option: {{ch.userdata.correct_option}}</h4>
                 <h4>Proposed correct option by user: {{ch.user_co}}</h4>
                 <h4>Explanation: {{ch.explanation}}</h4>
+                <div class="text-center">
+                <a href='/acceptchallenge/{{ch.id}}' class="btn btn-primary">Accept</a>
+                <a href='/rejectchallenge/{{ch.id}}' class="btn btn-primary">Reject</a>
+                </div>
             </div>
-            <a href='/acceptchallenge/{{ch.id}}' class="btn btn-primary">Accept</a>
-            <a href='/rejectchallenge/{{ch.id}}' class="btn btn-primary">Reject</a>
         </div>
     </div>
 </body>
