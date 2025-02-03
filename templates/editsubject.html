@@ -13,11 +13,11 @@
                 <form action="/editsubject2/{{subject.id}}" method="post">
                     <div class="mb-3">
                         <label for="name" class="form-label">Subject Name</label>
-                        <input type="text" class="form-control" id="name" name="name">
+                        <input type="text" class="form-control" id="name" name="name" placeholder="{{subject.name}}">
                     </div>
                     <div class="mb-3">
                         <label for="dsc" class="form-label">Description</label>
-                        <input type="text" class="form-control" id="dsc" name="dsc">
+                        <input type="text" class="form-control" id="dsc" name="dsc" placeholder="{{subject.description}}">
                     </div>
                     <div class="text-center">
                         <input type="submit" class="btn btn-primary" name="submit" value="Confirm">

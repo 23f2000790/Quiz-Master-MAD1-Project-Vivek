@@ -186,8 +186,13 @@ def edit_chapter(chapter_id):
         return redirect(url_for('admin_dashboard'))
     name = request.form.get('name')
     description = request.form.get('dsc')
-    chapter.name = name
-    chapter.description = description
+    if not name:
+        chapter.description = description
+    elif not description:
+        chapter.name = name
+    else:
+        chapter.name = name
+        chapter.description = description
     db.session.commit()
     return redirect(url_for('admin_dashboard'))
 
@@ -195,10 +200,12 @@ def edit_chapter(chapter_id):
 def deletechapter(chapter_id):
     chapter = Chapter.query.get_or_404(chapter_id)
     quiz = Quiz.query.filter_by(chapter_id=chapter_id).first()
-    questions = Question.query.filter_by(quiz_id=quiz.id)
-    for question in questions:
-        db.session.delete(question)
-    db.session.delete(quiz)
+    if quiz:
+        questions = Question.query.filter_by(quiz_id=quiz.id)
+        if questions:
+            for question in questions:
+                db.session.delete(question)
+        db.session.delete(quiz)
     db.session.delete(chapter)
     db.session.commit()
     return redirect(url_for('admin_dashboard'))
@@ -286,6 +293,9 @@ def add_question(quiz_id):
         if exists:
             emsg = "A question already exists with this ID!"
             return redirect(url_for('add_question',emsg=emsg, quiz_id=quiz_id))
+        if not title or not qst or not o1 or not o2 or not o3 or not o4 or not co:
+            emsg = "Please fill all fields"
+            return redirect(url_for('add_question',emsg=emsg, quiz_id=quiz_id))
         if o1 in [o2, o3, o4] or o2 in [o3, o4] or o3 == o4:
             emsg = "No 2 or more options can be same"
             return redirect(url_for('add_question',emsg=emsg, quiz_id=quiz_id))
@@ -318,9 +328,6 @@ def deletequiz(quiz_id):
 @app.route('/editquiz/<int:quiz_id>')
 def editquiz(quiz_id):
     quiz = Quiz.query.filter_by(id=quiz_id).first()
-    if 'emsg' in request.args:
-        emsg = request.args.get('emsg')
-        return render_template('editquiz.html',quiz=quiz,emsg=emsg)
     return render_template('editquiz.html',quiz=quiz)
 
 @app.route('/editquiz2/<int:quiz_id>/<int:chapter_id>',methods=['GET','POST'])
@@ -328,18 +335,19 @@ def editquiz2(quiz_id,chapter_id):
     if request.form.get('submit') == 'Add':
         date = request.form.get('date')
         time = request.form.get('time')
-        if not date:
-            emsg = "Please specify a date for the quiz!"
-            return redirect(url_for('editquiz',emsg=emsg))
-        if not time:
-            emsg = "Please set a time for the quiz!"
-            return redirect(url_for('editquiz',emsg=emsg))
-        datecon = datetime.strptime(date, '%Y-%m-%d').date()
-        timecon = datetime.strptime(time, '%H:%M').time() 
-        time_str = timecon.strftime('%H:%M')
+        if date:
+            datecon = datetime.strptime(date, '%Y-%m-%d').date()
+        if time:
+            timecon = datetime.strptime(time, '%H:%M').time() 
+            time_str = timecon.strftime('%H:%M')
         quiz = Quiz.query.filter_by(chapter_id=chapter_id).first()
-        quiz.date = datecon
-        quiz.time = time_str
+        if not date:
+            quiz.time = time_str
+        elif not time:
+            quiz.date = datecon
+        else:
+            quiz.date = datecon
+            quiz.time = time_str
         db.session.commit()
         return redirect(url_for('quizmantemp'))
     return redirect(url_for('quizmantemp'))
@@ -430,10 +438,12 @@ def deletesubject(subject_id):
     chapters = Chapter.query.filter_by(subject_id=subject_id)
     for chapter in chapters:
         quiz = Quiz.query.filter_by(chapter_id=chapter.id).first()
-        questions = Question.query.filter_by(quiz_id=quiz.id)
-        for q in questions:
-            db.session.delete(q)
-        db.session.delete(quiz)
+        if quiz:
+            questions = Question.query.filter_by(quiz_id=quiz.id)
+            if questions:
+                for q in questions:
+                    db.session.delete(q)
+            db.session.delete(quiz)
         db.session.delete(chapter)
     subject = Subject.query.get_or_404(subject_id)
     db.session.delete(subject)
@@ -451,8 +461,13 @@ def editsubject2(subject_id):
         name = request.form.get('name')
         dsc = request.form.get('dsc')
         sub = Subject.query.filter_by(id=subject_id).first()
-        sub.name = name
-        sub.description = dsc
+        if not name:
+            sub.description = dsc
+        elif not dsc:
+            sub.name = name
+        else:
+            sub.name = name
+            sub.description = dsc
         db.session.commit()
         return redirect(url_for('admin_dashboard'))
     return redirect(url_for('admin_dashboard'))
@@ -478,17 +493,26 @@ def edit_question(question_id,quiz_id):
     o3 = request.form.get('o3')
     o4 = request.form.get('o4')
     co = request.form.get('co')
-    if any([o1,o2,o3,o4]) == any([o1,o2,o3,o4]):
-        emsg = "No 2 or more options can be same"
-        return redirect(url_for('editquestion',emsg=emsg, quiz_id=quiz_id,question_id=question_id))
 
-    question.title = title
-    question.question_statement = qst
-    question.option1 = o1
-    question.option2 = o2
-    question.option3 = o3
-    question.option4 = o4
-    question.correct_option = co
+    if o1 and o2 and o3 and o4:
+        if o1 in [o2, o3, o4] or o2 in [o3, o4] or o3 == o4:
+            emsg = "No 2 or more options can be same"
+            return redirect(url_for('editquestion',emsg=emsg, quiz_id=quiz_id))
+        question.option1 = o1
+        question.option2 = o2
+        question.option3 = o3
+        question.option4 = o4
+    else:
+        if o1 or o2 or o3 or o4:
+            emsg = "Please give entries for all options"
+            return redirect(url_for('editquestion',emsg=emsg, quiz_id=quiz_id))
+    if title:
+        question.title = title
+    elif qst:
+        question.question_statement = qst
+    elif co:
+        question.correct_option = co
+
     db.session.commit()
     return redirect(url_for('quizmantemp'))
 
@@ -592,6 +616,9 @@ def usersummary(u_name):
     score = Score.query.filter_by(user_id=user.id).all()
     avgtime = []
     name_time = {}
+    if not score:
+        message = "Please Attempt some quizzes to get summary!"
+        return render_template('usersummary.html',msg=message,u_name=u_name)
     for i in score:
         obj = datetime.strptime(i.time_taken, "%H:%M:%S")
         sec = obj.hour*3600 + obj.minute*60 + obj.second
@@ -612,9 +639,6 @@ def usersummary(u_name):
     plt.savefig('static/img3.png')
 
 
-    if not score:
-        message = "Please Attempt some quizzes to get summary!"
-        return render_template('usersummary.html',msg=message,u_name=u_name)
     chapter_score = {}
     for i in score:
         chapter = i.chapter_name

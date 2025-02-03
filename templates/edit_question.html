@@ -8,7 +8,7 @@
 <body>
     <div id = "main">
         <div id = "canvas">
-            <div id = "form-body">
+            <div id = "form-body" style="margin-top: 20px;">
                 <h1 id="centre-text">You are editing question number {{question.question_id}}</h1>
                 {% if emsg %}
                 <div class="alert alert-danger text-center">
@@ -18,31 +18,31 @@
                 <form action="/editquestion2/{{question.question_id}}/{{quiz_id}}" method="post">
                     <div class="mb-3">
                         <label for="title" class="form-label">Question Title</label>
-                        <input type="text" class="form-control" id="title" name="title">
+                        <input type="text" class="form-control" id="title" name="title" placeholder="{{question.title}}">
                     </div>
                     <div class="mb-3">
                         <label for="qst" class="form-label">Question Statement</label>
-                        <input type="text" class="form-control" id="qst" name="qst">
+                        <input type="text" class="form-control" id="qst" name="qst" placeholder="{{question.question_statement}}">
                     </div>
                     <div class="mb-3">
                         <label for="o1" class="form-label">Option 1</label>
-                        <input type="text" class="form-control" id="o1" name="o1">
+                        <input type="text" class="form-control" id="o1" name="o1" placeholder="{{question.option1}}">
                     </div>
                     <div class="mb-3">
                         <label for="o2" class="form-label">Option 2</label>
-                        <input type="text" class="form-control" id="o2" name="o2">
+                        <input type="text" class="form-control" id="o2" name="o2" placeholder="{{question.option2}}">
                     </div>
                     <div class="mb-3">
                         <label for="o3" class="form-label">Option 3</label>
-                        <input type="text" class="form-control" id="o3" name="o3">
+                        <input type="text" class="form-control" id="o3" name="o3" placeholder="{{question.option3}}">
                     </div>
                     <div class="mb-3">
                         <label for="o4" class="form-label">Option 4</label>
-                        <input type="text" class="form-control" id="o4" name="o4">
+                        <input type="text" class="form-control" id="o4" name="o4" placeholder="{{question.option4}}">
                     </div>
                     <div class="mb-3">
                         <label for="co" class="form-label">Correct Option</label>
-                        <input type="text" class="form-control" id="co" name="co">
+                        <input type="text" class="form-control" id="co" name="co" placeholder="{{question.correct_option}}">
                     </div>
                     <div class="text-center">
                         <input type="submit" class="btn btn-primary" name="submit" value="Confirm">

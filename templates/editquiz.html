@@ -11,18 +11,13 @@
             <div id = "form-body">
                 <h1 id="centre-text">You are editing the quiz {{quiz.id}}:{{quiz.chapter.name}}</h1>
                 <form action="/editquiz2/{{quiz.id}}/{{quiz.chapter.id}}" method="post">
-                    {% if emsg %}
-                    <div class="alert alert-danger text-center">
-                        {{ emsg }}
-                    </div>
-                    {% endif %}
                     <div class="mb-3">
                         <label for="date" class="form-label">Date</label>
-                        <input type="date" class="form-control" id="date" name="date">
+                        <input type="date" class="form-control" id="date" name="date" placeholder="{{quiz.date}}">
                     </div> 
                     <div class="mb-3">
                         <label for="time" class="form-label">Duration</label>
-                        <input type="time" class="form-control" id="time" name="time" step="60">
+                        <input type="time" class="form-control" id="time" name="time" step="60" placeholder="{{quiz.time}}">
                     </div>     
                     <div class="text-center">
                         <input type="submit" class="btn btn-primary" name="submit" value="Add">
