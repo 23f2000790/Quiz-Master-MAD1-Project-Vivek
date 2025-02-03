@@ -6,6 +6,13 @@ import matplotlib.pyplot as plt
 import matplotlib
 matplotlib.use("Agg")
 
+user = User.query.all()
+if not user:
+    dte = datetime.strptime("2005-12-15", "%Y-%m-%d").date()
+    u = User(username='admin',password='admin',fullname='admin',qualification='admin',dob=dte,type='admin')
+    db.session.add(u)
+    db.session.commit()
+
 @app.route('/', methods=['GET','POST'])
 def Welcome():
     return render_template('welcome.html')
@@ -770,3 +777,8 @@ def adminsearchqm():
         return redirect(url_for('quizmantemp',chapter=st))
     emsg = "No results found"
     return redirect(url_for('quizmantemp',emsg=emsg))
+
+
+@app.route('/adminsummary')
+def adminsummary():
+    return
