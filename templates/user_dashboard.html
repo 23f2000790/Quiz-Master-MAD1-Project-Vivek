@@ -48,6 +48,15 @@
                   </thead>
                   <tbody>
                     {% if quizzes %}
+                      {% if msg %}
+                      <tr>  
+                        <td colspan="6">
+                          <div class="alert alert-danger text-center">
+                            {{ msg }}
+                          </div>
+                        </td>
+                      </tr>
+                      {% endif %}
                       {% for quiz in quizzes %}
                         {% if quiz.questions|length > 0 %}
                           <tr>
@@ -63,15 +72,22 @@
                           </tr>
                         {% endif %}
                       {% endfor %}
-                      <tr>
-                        {% if msg %}
+                    {% else %}
+                      {% if msg %}
+                        <tr>
                           <td colspan="6">
                             <div class="alert alert-danger text-center">
                               {{ msg }}
                             </div>
                           </td>
-                        {% endif %}
-                      </tr>
+                        </tr>
+                      {% else %}
+                        <tr>
+                          <td colspan="6">
+                            <div class="alert alert-primary text-center">No Quizzes for now,&ensp;Enjoy!</div>
+                          </td>
+                        </tr>
+                      {% endif %}
                     {% endif %}
                   </tbody>
                 </table>

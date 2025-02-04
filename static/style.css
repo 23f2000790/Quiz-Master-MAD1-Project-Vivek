@@ -11,10 +11,11 @@
     position: relative;
 }
 #bg {
-    background-image: url('/static/quizbg.jpg');
+    background-image: url('/static/quizbg3.webp');
     background-size: cover;
     background-repeat: no-repeat;
-    background-position: top;
+    background-position: 15%;
+    margin: auto;
 }
 #form-body {
     backdrop-filter: blur(100px);
@@ -44,6 +45,7 @@
     padding: 3px;
 }
 #form-body-register {
+    color: aliceblue;
     backdrop-filter: blur(100px);
     width: 424px;
     height: auto;

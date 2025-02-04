@@ -15,24 +15,24 @@
                     <span id="timer" style="margin-bottom:13px;">--:--:--</span>
                 </div>
                 <script>
-                    const timerDuration = Number("{{ timer }}");
-                    function startTimer(duration) {
-                        let timeLeft = duration;
-                        const timerElement = document.getElementById("timer");
-                        const timerInterval = setInterval(() => {
-                            const hours = Math.floor(timeLeft / 3600);
-                            const remainder = timeLeft % 3600;
+                    const timer_duration = Number("{{ timer }}");
+                    function start_timer(duration) {
+                        let timeleft = duration;
+                        const timer_element = document.getElementById("timer");
+                        const countdown_timer = setInterval(() => {
+                            const hours = Math.floor(timeleft / 3600);
+                            const remainder = timeleft % 3600;
                             const minutes = Math.floor(remainder / 60);
                             const seconds = remainder % 60;
-                            timerElement.textContent = "0"+`${hours}:${minutes}:${seconds}`;
-                            if (timeLeft <= 0) {
-                                clearInterval(timerInterval);
+                            timer_element.textContent = "0"+`${hours}:${minutes}:${seconds}`;
+                            if (timeleft <= 0) {
+                                clearInterval(countdown_timer);
                                 alert("Your Time is Over"); 
                             }
-                            timeLeft--;
+                            timeleft--;
                         }, 1000);
                     }
-                    startTimer(timerDuration);
+                    start_timer(timer_duration);
                 </script>
                 <div id = "quiz-body">
                     <p style="margin-left: 15px; margin-top: 10px;">Question {{ current_index + 1 }} of {{ questions | length }}</p>
