@@ -621,6 +621,9 @@ def reapprove(user_id):
 def usersummary(u_name):
     user = User.query.filter_by(username=u_name).first()
     score = Score.query.filter_by(user_id=user.id).all()
+
+    attendance = Score.query.filter_by(user_id=user.id).order_by(Score.id.asc()).group_by(Score.quiz_id).all()
+    
     avgtime = []
     name_time = {}
     if not score:
@@ -646,21 +649,45 @@ def usersummary(u_name):
     plt.savefig('static/img3.png')
 
 
-    chapter_score = {}
+    name_perc = {}
     for i in score:
-        chapter = i.chapter_name
-        marks = i.total_score
-        if chapter not in chapter_score:
-            chapter_score[chapter] = marks
-
-
-    chapter_names = list(chapter_score.keys())
-    first_score = list(chapter_score.values())
+        if i.chapter_name not in name_perc:
+            s = Score.query.filter_by(chapter_name=i.chapter_name,user_id=i.user.id).all()
+            marks = 0
+            count = 0
+            for j in s:
+                marks_perc = (j.total_score/j.noq)*100
+                marks += marks_perc
+                count += 1
+            perc = marks/count
+            name_perc[i.chapter_name] = perc
+        
+    cht_name = list(name_perc.keys())
+    perr = list(name_perc.values())
     plt.clf()
-    plt.bar(chapter_names, first_score)
-    plt.xlabel("Chapter Name")
-    plt.ylabel("Marks")
-    plt.title("Marks Obtained in first attempt")
+    plt.bar(cht_name, perr)
+    plt.ylim(0, 105)
+    plt.xlabel("User Name")
+    plt.ylabel("Percentage")
+    plt.title("Average percentage in all quizzes")
+    plt.savefig('static/img4.png')
+        
+
+    ch_perc = {}
+    for i in score:
+        if i.chapter_name not in ch_perc:
+            s = Score.query.filter_by(chapter_name=i.chapter_name).first()
+            perc = (s.total_score/s.noq)*100
+            ch_perc[i.chapter_name] = perc
+        
+    chap_name = list(ch_perc.keys())
+    percen = list(ch_perc.values())
+    plt.clf()
+    plt.bar(chap_name, percen)
+    plt.ylim(0, 105)
+    plt.xlabel("Chapter")
+    plt.ylabel("Percentage Scored")
+    plt.title("Percentage scored in each Quiz")
     plt.savefig('static/img.png')
 
     count = 0
@@ -685,11 +712,11 @@ def usersummary(u_name):
         values = [count,total_count-count]
         lables = ["Full Marks","Partial marks"]
     plt.clf()
-    plt.pie(values, labels=lables)
+    plt.pie(values, autopct='%1.1f%%' ,labels=lables)
     plt.title("Accuracy in First Attempt")
     plt.savefig('static/img2.png')
 
-    return render_template('usersummary.html', u_name=u_name,avgt=average_time_taken)
+    return render_template('usersummary.html', u_name=u_name,avgt=average_time_taken,attendance=len(attendance))
 
 @app.route('/challenge/<int:ud_id>/<int:qz_id>/<u_name>/<int:score_id>')
 def challenge(ud_id,qz_id,u_name,score_id):
@@ -785,7 +812,7 @@ def adminsummary():
     no_of_quiz = {}
     for i in user:
         score = Score.query.filter_by(user_id=i.id).order_by(Score.id.asc()).group_by(Score.quiz_id).all()
-        no_of_quiz[i.username] = len(score)
+        no_of_quiz[i.fullname] = len(score)
     user_names = list(no_of_quiz.keys())
     total_quiz_attempt = list(no_of_quiz.values())
     plt.clf()
@@ -794,5 +821,55 @@ def adminsummary():
     plt.ylabel("No. of quiz attempted")
     plt.title("Attendance of quiz")
     plt.savefig('static/adimg1.png')
+
+    
+    score = Score.query.filter_by().all()
+    chapter_time = {}
+    for i in score:
+        obj = datetime.strptime(i.time_taken, "%H:%M:%S")
+        sec = obj.hour*3600 + obj.minute*60 + obj.second
+        if i.chapter_name not in chapter_time:
+            chapter_time[i.chapter_name] = sec
+        else:
+            chapter_time[i.chapter_name] += sec
+        
+    avg_ch_time = {} 
+    for i in chapter_time:
+        s = Score.query.filter_by(chapter_name=i).all()
+        avgt = chapter_time[i]/len(s)
+        avg_ch_time[i] = avgt
+
+    ch_name = list(avg_ch_time.keys())
+    tt = list(avg_ch_time.values())
+    plt.clf()
+    plt.plot(ch_name, tt, marker='o', linestyle='-', color='b', label='Line 1')
+    plt.xlabel("Chapter Name")
+    plt.ylabel("Time Taken(Seconds)")
+    plt.title(" Average time taken for each chapter")
+    plt.savefig('static/adimg2.png')
+
+
+    name_perc = {}
+    for i in score:
+        if i.user.fullname not in name_perc:
+            s = Score.query.filter_by(user_id=i.user.id).all()
+            marks = 0
+            count = 0
+            for j in s:
+                marks_perc = j.total_score/j.noq
+                marks += marks_perc
+                count += 1
+            perc = (marks/count)*100
+            name_perc[i.user.fullname] = perc
+        
+    u_name = list(name_perc.keys())
+    perr = list(name_perc.values())
+    plt.clf()
+    plt.bar(u_name, perr)
+    plt.ylim(0, 105)
+    plt.xlabel("User Name")
+    plt.ylabel("Percentage")
+    plt.title("Average percentage in all quizzes")
+    plt.savefig('static/adimg3.png')
 
     return render_template('adminsummary.html')

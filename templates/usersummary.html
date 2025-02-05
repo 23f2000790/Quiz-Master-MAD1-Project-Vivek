@@ -41,13 +41,17 @@
               {% else %}
                 <div class="table-div" id="canvas">
                   <div class="text-center">
+                    <div class="info-box">
+                      <p>No. of Quiz taken: {{attendance}}&ensp;&ensp;&ensp;&ensp;Average time taken: {{avgt}}</p>
+                    </div>
+                    <p></p>
                     <img src="/static/img.png" alt="user summary">
                     <span>&ensp;</span>
                     <img src="/static/img2.png" alt="user summary">
                     <p></p>
                     <img src="/static/img3.png" alt="user summary">
-                    <p></p>
-                    <p> Average Time Spent: {{avgt}}</p>
+                    <span>&ensp;</span>
+                    <img src="/static/img4.png" alt="user summary">
                   </div>
                 </div>
               {% endif %}
