@@ -58,7 +58,7 @@ def user_register():
         above_user = User.query.filter_by(username=u_name).first()
         if above_user:
             emsg = "User Already Exists :("
-            return redirect(url_for('register',emsg=emsg))
+            return redirect(url_for('user_register',emsg=emsg))
         else:
             new_user = User(username=u_name,password=pwd,fullname=fn,qualification=qfn,dob=dobcon)
             db.session.add(new_user)
@@ -781,4 +781,18 @@ def adminsearchqm():
 
 @app.route('/adminsummary')
 def adminsummary():
-    return
+    user = User.query.filter_by(type='user').all()
+    no_of_quiz = {}
+    for i in user:
+        score = Score.query.filter_by(user_id=i.id).order_by(Score.id.asc()).group_by(Score.quiz_id).all()
+        no_of_quiz[i.username] = len(score)
+    user_names = list(no_of_quiz.keys())
+    total_quiz_attempt = list(no_of_quiz.values())
+    plt.clf()
+    plt.bar(user_names, total_quiz_attempt)
+    plt.xlabel("Users")
+    plt.ylabel("No. of quiz attempted")
+    plt.title("Attendance of quiz")
+    plt.savefig('static/adimg1.png')
+
+    return render_template('adminsummary.html')
