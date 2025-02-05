@@ -113,10 +113,19 @@ def user_dashboard():
 
 @app.route('/scores/<u_name>')
 def scores(u_name):
+    if 'chapter' in request.args:
+        sw = request.args.get('chapter')
+        user = User.query.filter_by(username=u_name).first()
+        score = Score.query.filter(Score.user_id==user.id,Score.chapter_name.like(sw)).all()
+        return render_template('user_scores.html', u_name=u_name, score=score)
+    elif 'quiz_date' in request.args:
+        sw = request.args.get('quiz_date')
+        user = User.query.filter_by(username=u_name).first()
+        score = Score.query.filter(Score.user_id==user.id,Score.qdate.like(sw)).all()
+        return render_template('user_scores.html', u_name=u_name, score=score)
     user = User.query.filter_by(username=u_name).first()
     score = Score.query.filter_by(user_id=user.id)
     return render_template('user_scores.html', u_name=u_name, score=score)
-
 
 @app.route('/admin',methods=['GET','POST'])
 def admin_dashboard():
@@ -525,6 +534,14 @@ def edit_question(question_id,quiz_id):
 
 @app.route('/usersdata')
 def users_data():
+    if 'sw' in request.args:
+        sw = request.args.get('sw')
+        users = User.query.filter(User.fullname.like(sw)).all()
+        quiz = Quiz.query.all()
+        q = len(quiz)
+        return render_template('userdata.html',users=users,q=q)
+    elif 'emsg' in request.args:
+        return render_template('userdata.html',users=[])
     users = User.query.filter_by(type="user").all()
     quiz = Quiz.query.all()
     q = len(quiz)
@@ -534,6 +551,14 @@ def users_data():
 def usersearch(u_name):
     search_word = request.args.get('search_word')
     sw = "%" + search_word.lower() +"%"
+
+    subject = Subject.query.filter(Subject.name.like(sw)).all()
+    if subject:
+        st = ''
+        for i in subject:
+            st += str(i.id)
+        return redirect(url_for('user_dashboard',subject=st,u_name=u_name))
+    
     chapter = Chapter.query.filter(Chapter.name.like(sw)).all()
     if chapter:
         st = ''
@@ -541,12 +566,6 @@ def usersearch(u_name):
             st += str(i.id)
         return redirect(url_for('user_dashboard',chapter=st,u_name=u_name))
     
-    subject = Subject.query.filter(Subject.name.like(sw)).all()
-    if subject:
-        st = ''
-        for i in subject:
-            st += str(i.id)
-        return redirect(url_for('user_dashboard',subject=st,u_name=u_name))
     dte = Quiz.query.filter(Quiz.date.like(sw)).all()
     if dte:
         st = ''
@@ -607,6 +626,12 @@ def removeuser(user_id):
 
 @app.route('/bin')
 def bin():
+    if 'sw' in request.args:
+        sw = request.args.get('sw')
+        user = User.query.filter(User.fullname.like(sw),User.type == 'removed').all()
+        return render_template('binusers.html',users=user)
+    elif 'emsg' in request.args:
+        return render_template('binusers.html',users=[])
     user = User.query.filter_by(type="removed").all()
     return render_template('binusers.html',users=user)
 
@@ -806,6 +831,28 @@ def adminsearchqm():
     return redirect(url_for('quizmantemp',emsg=emsg))
 
 
+@app.route('/adminsearch/ud')
+def adminsearchud():
+    searchword = request.args.get('search_word')
+    sw = "%" + searchword.lower() +"%"
+    users = User.query.filter(User.fullname.like(sw)).all()
+    if users:
+        return redirect(url_for('users_data',sw=sw))
+    emsg = " "
+    return redirect(url_for('users_data',emsg=emsg))
+
+@app.route('/adminsearch/bin')
+def adminsearchbin():
+    searchword = request.args.get('search_word')
+    sw = "%" + searchword.lower() +"%"
+    users = User.query.filter(User.fullname.like(sw),User.type == 'removed').all()
+    if users:
+        return redirect(url_for('bin',sw=sw))
+    emsg = " "
+    return redirect(url_for('bin',emsg=emsg))
+
+
+
 @app.route('/adminsummary')
 def adminsummary():
     user = User.query.filter_by(type='user').all()
@@ -873,3 +920,21 @@ def adminsummary():
     plt.savefig('static/adimg3.png')
 
     return render_template('adminsummary.html')
+
+
+
+@app.route('/search/score/<u_name>')
+def usersearchscore(u_name):
+    search_word = request.args.get('search_word')
+    sw = "%" + search_word.lower() +"%"
+    user = User.query.filter_by(username=u_name).first()
+    score = Score.query.filter(Score.user_id==user.id,Score.chapter_name.like(sw)).all()
+    if score:
+        return redirect(url_for('scores', chapter=sw, u_name=u_name))
+
+    dte = Score.query.filter(Score.user_id==user.id,Score.qdate.like(sw)).all()
+    if dte:
+        return redirect(url_for('scores',quiz_date=sw,u_name=u_name))
+    if not score and not dte:
+        errormsg = "No information found for: "+search_word
+        return redirect(url_for('scores',msg=errormsg,u_name=u_name))
