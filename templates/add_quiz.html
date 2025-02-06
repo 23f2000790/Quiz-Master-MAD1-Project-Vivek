@@ -27,7 +27,14 @@
                     <div class="mb-3">
                         <label for="time" class="form-label">Duration</label>
                         <input type="time" class="form-control" id="time" name="time" step="60">
-                    </div>     
+                    </div>
+                    <div class="mb-3">
+                        <label for="cars">Status:</label>
+                        <select id="status" name="status">
+                        <option value="active" name="active">Active</option>
+                        <option value="inactive" name="inactive">Inactive</option>
+                        </select>
+                    </div>
                     <div class="text-center">
                         <input type="submit" class="btn btn-primary" name="submit" value="Add">
                         <input type="submit" class="btn btn-danger" name="submit" value="Cancel">

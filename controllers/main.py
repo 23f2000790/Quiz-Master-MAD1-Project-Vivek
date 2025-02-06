@@ -6,17 +6,17 @@ import matplotlib.pyplot as plt
 import matplotlib
 matplotlib.use("Agg")
 
-user = User.query.all()
-if not user:
-    dte = datetime.strptime("2005-12-15", "%Y-%m-%d").date()
-    u = User(username='admin',password='admin',fullname='admin',qualification='admin',dob=dte,type='admin')
-    db.session.add(u)
-    db.session.commit()
 
         
 
 @app.route('/', methods=['GET','POST'])
 def Welcome():
+    user = User.query.all()
+    if not user:
+        dte = datetime.strptime("2005-12-15", "%Y-%m-%d").date()
+        u = User(username='admin',password='admin',fullname='admin',qualification='admin',dob=dte,type='admin')
+        db.session.add(u)
+        db.session.commit()
     return render_template('welcome.html')
 
 
@@ -110,7 +110,7 @@ def user_dashboard():
         emsg = request.args.get('msg')
         return render_template('user_dashboard.html',quizzes=quizzes,u_name=u_name,msg=emsg)
 
-    quizzes = Quiz.query.filter(Quiz.date >= date.today()).all()
+    quizzes = Quiz.query.filter(Quiz.date >= date.today(), Quiz.status=='active').all()
     return render_template('user_dashboard.html',quizzes=quizzes,u_name=u_name)
 
 @app.route('/scores/<u_name>')
@@ -262,11 +262,15 @@ def quizman():
         chapter_id = request.form.get('chapter_id')        
         date = request.form.get('date')
         time = request.form.get('time')
+        status = request.form.get('status')
         if not date:
             emsg = "Please specify a date for the quiz!"
             return redirect(url_for('addquiz',emsg=emsg))
         if not time:
             emsg = "Please set a time for the quiz!"
+            return redirect(url_for('addquiz',emsg=emsg))
+        if not status:
+            emsg = "Please set a status for the quiz!"
             return redirect(url_for('addquiz',emsg=emsg))
         datecon = datetime.strptime(date, '%Y-%m-%d').date()
         timecon = datetime.strptime(time, '%H:%M').time() 
@@ -283,7 +287,7 @@ def quizman():
             emsg = "The specified Chapter ID does not exist!"
             return redirect(url_for('addquiz',emsg=emsg))
         else:
-            quiz2 = Quiz(chapter_id=chapter_id,date=datecon,time=time_str)
+            quiz2 = Quiz(chapter_id=chapter_id,date=datecon,time=time_str,status=status)
             db.session.add(quiz2)
             db.session.commit() 
             quizes = Quiz.query.all()
@@ -357,22 +361,24 @@ def editquiz2(quiz_id,chapter_id):
     if request.form.get('submit') == 'Confirm':
         dte = request.form.get('date')
         time = request.form.get('time')
+        status = request.form.get('status')
+        datecon=''
         if dte:
             datecon = datetime.strptime(dte, '%Y-%m-%d').date()
-        if datecon and not (datecon >= date.today()):
-            msg = "Please enter a valid date!"
-            return redirect(url_for('editquiz',msg=msg,quiz_id=quiz_id))
+        if datecon:
+            if not (datecon >= date.today()):
+                msg = "Please enter a valid date!"
+                return redirect(url_for('editquiz',msg=msg,quiz_id=quiz_id))
         if time:
             timecon = datetime.strptime(time, '%H:%M').time() 
             time_str = timecon.strftime('%H:%M')
         quiz = Quiz.query.filter_by(chapter_id=chapter_id).first()
-        if not dte:
-            quiz.time = time_str
-        elif not time:
+        if dte:
             quiz.date = datecon
-        else:
-            quiz.date = datecon
+        elif time:
             quiz.time = time_str
+        elif status:
+            quiz.status = status
         db.session.commit()
         return redirect(url_for('quizmantemp'))
     return redirect(url_for('quizmantemp'))
@@ -382,9 +388,6 @@ def editquiz2(quiz_id,chapter_id):
 @app.route('/start_quiz/<int:quiz_id>/<u_name>',methods=['GET','POST'])
 def startquiztemp(quiz_id,u_name):
     quiz = Quiz.query.filter_by(id=quiz_id).first()
-    if date.today() != quiz.date and date.today() < quiz.date:
-        emsg = "This quiz is for: " + str(quiz.date)
-        return redirect(url_for('user_dashboard',msg=emsg,u_name=u_name))
     questions =  Question.query.filter_by(quiz_id=quiz_id).all()
     noofquestions = len(questions)
     start_time = datetime.now()
@@ -502,12 +505,9 @@ def editsubject2(subject_id):
         name = request.form.get('name')
         dsc = request.form.get('dsc')
         sub = Subject.query.filter_by(id=subject_id).first()
-        if not name:
-            sub.description = dsc
-        elif not dsc:
+        if name:
             sub.name = name
-        else:
-            sub.name = name
+        elif dsc:
             sub.description = dsc
         db.session.commit()
         return redirect(url_for('admin_dashboard'))

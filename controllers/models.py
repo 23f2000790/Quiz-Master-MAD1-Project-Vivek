@@ -28,7 +28,8 @@ class Quiz(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     chapter_id = db.Column(db.Integer, db.ForeignKey('chapter.id'), nullable=False) 
     date = db.Column(db.Date(), nullable=False)
-    time = db.Column(db.String(10), nullable=False)  
+    time = db.Column(db.String(10), nullable=False)
+    status = db.Column(db.String())  
     questions = db.relationship('Question', backref='quiz')
 
 class Question(db.Model):
