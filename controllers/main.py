@@ -115,19 +115,19 @@ def user_dashboard():
 
 @app.route('/scores/<u_name>')
 def scores(u_name):
+    dte = date.today()
     if 'chapter' in request.args:
         sw = request.args.get('chapter')
         user = User.query.filter_by(username=u_name).first()
         score = Score.query.filter(Score.user_id==user.id,Score.chapter_name.like(sw)).all()
-        return render_template('user_scores.html', u_name=u_name, score=score)
+        return render_template('user_scores.html', u_name=u_name, score=score,dte=dte)
     elif 'quiz_date' in request.args:
         sw = request.args.get('quiz_date')
         user = User.query.filter_by(username=u_name).first()
         score = Score.query.filter(Score.user_id==user.id,Score.qdate.like(sw)).all()
-        return render_template('user_scores.html', u_name=u_name, score=score)
+        return render_template('user_scores.html', u_name=u_name, score=score,dte=dte)
     user = User.query.filter_by(username=u_name).first()
     score = Score.query.filter_by(user_id=user.id)
-    dte = date.today()
     return render_template('user_scores.html', u_name=u_name, score=score, dte=dte)
 
 @app.route('/admin',methods=['GET','POST'])
@@ -260,10 +260,10 @@ def quizman():
         if request.form.get('submit') == "Cancel":
             return redirect(url_for('quizmantemp'))
         chapter_id = request.form.get('chapter_id')        
-        date = request.form.get('date')
+        dte = request.form.get('date')
         time = request.form.get('time')
         status = request.form.get('status')
-        if not date:
+        if not dte:
             emsg = "Please specify a date for the quiz!"
             return redirect(url_for('addquiz',emsg=emsg))
         if not time:
@@ -272,7 +272,7 @@ def quizman():
         if not status:
             emsg = "Please set a status for the quiz!"
             return redirect(url_for('addquiz',emsg=emsg))
-        datecon = datetime.strptime(date, '%Y-%m-%d').date()
+        datecon = datetime.strptime(dte, '%Y-%m-%d').date()
         timecon = datetime.strptime(time, '%H:%M').time() 
         time_str = timecon.strftime('%H:%M')
         quiz = Quiz.query.filter_by(chapter_id=chapter_id).first()
@@ -285,6 +285,10 @@ def quizman():
             return redirect(url_for('addquiz',emsg=emsg))
         if not chapter:
             emsg = "The specified Chapter ID does not exist!"
+            return redirect(url_for('addquiz',emsg=emsg))
+        
+        if not (datecon >= date.today()):
+            emsg = "Please enter a valid date!"
             return redirect(url_for('addquiz',emsg=emsg))
         else:
             quiz2 = Quiz(chapter_id=chapter_id,date=datecon,time=time_str,status=status)
@@ -321,6 +325,9 @@ def add_question(quiz_id):
             return redirect(url_for('add_question',emsg=emsg, quiz_id=quiz_id))
         if o1 in [o2, o3, o4] or o2 in [o3, o4] or o3 == o4:
             emsg = "No 2 or more options can be same"
+            return redirect(url_for('add_question',emsg=emsg, quiz_id=quiz_id))
+        if co not in [1,2,3,4]:
+            emsg = "valid correct options - 1,2,3,4!"
             return redirect(url_for('add_question',emsg=emsg, quiz_id=quiz_id))
         new_question = Question(quiz_id=quiz_id,question_id=id,title=title,question_statement=qst,option1=o1,option2=o2,option3=o3,option4=o4,correct_option=co)
         db.session.add(new_question)
@@ -538,7 +545,7 @@ def edit_question(question_id,quiz_id):
     if o1 and o2 and o3 and o4:
         if o1 in [o2, o3, o4] or o2 in [o3, o4] or o3 == o4:
             emsg = "No 2 or more options can be same"
-            return redirect(url_for('editquestion',emsg=emsg, quiz_id=quiz_id))
+            return redirect(url_for('editquestion',emsg=emsg, quiz_id=quiz_id,question_id=question_id))
         question.option1 = o1
         question.option2 = o2
         question.option3 = o3
@@ -546,7 +553,11 @@ def edit_question(question_id,quiz_id):
     else:
         if o1 or o2 or o3 or o4:
             emsg = "Please give entries for all options"
-            return redirect(url_for('editquestion',emsg=emsg, quiz_id=quiz_id))
+            return redirect(url_for('editquestion',emsg=emsg, quiz_id=quiz_id,question_id=question_id))
+    if co not in [1,2,3,4]:
+        emsg = "valid correct options - 1,2,3,4!"
+        return redirect(url_for('editquestion',emsg=emsg, quiz_id=quiz_id,question_id=question_id))
+    
     if title:
         question.title = title
     elif qst:
@@ -672,7 +683,7 @@ def usersummary(u_name):
     user = User.query.filter_by(username=u_name).first()
     score = Score.query.filter_by(user_id=user.id).all()
 
-    attendance = Score.query.filter_by(user_id=user.id).order_by(Score.id.asc()).group_by(Score.quiz_id).all()
+    attendance = Score.query.filter_by(user_id=user.id).all()
     
     avgtime = []
     name_time = {}
@@ -682,9 +693,8 @@ def usersummary(u_name):
     for i in score:
         obj = datetime.strptime(i.time_taken, "%H:%M:%S")
         sec = obj.hour*3600 + obj.minute*60 + obj.second
-        if i.chapter_name not in name_time:
-            name_time[i.chapter_name] = sec
-            avgtime.append(sec)
+        name_time[i.chapter_name] = sec
+        avgtime.append(sec)
 
     avgt = sum(avgtime)/len(avgtime)
     average_time_taken = "0"+str(timedelta(seconds=int(avgt)))
@@ -695,40 +705,13 @@ def usersummary(u_name):
     plt.plot(ch_name, tt, marker='o', linestyle='-', color='b', label='Line 1')
     plt.xlabel("Chapter Name")
     plt.ylabel("Time Taken(Seconds)")
-    plt.title("Time Taken for each chapter")
+    plt.title("Time Taken in each Quiz")
     plt.savefig('static/img3.png')
-
-
-    name_perc = {}
-    for i in score:
-        if i.chapter_name not in name_perc:
-            s = Score.query.filter_by(chapter_name=i.chapter_name,user_id=i.user.id).all()
-            marks = 0
-            count = 0
-            for j in s:
-                marks_perc = (j.total_score/j.noq)*100
-                marks += marks_perc
-                count += 1
-            perc = marks/count
-            name_perc[i.chapter_name] = perc
-        
-    cht_name = list(name_perc.keys())
-    perr = list(name_perc.values())
-    plt.clf()
-    plt.bar(cht_name, perr)
-    plt.ylim(0, 105)
-    plt.xlabel("User Name")
-    plt.ylabel("Percentage")
-    plt.title("Average percentage in all quizzes")
-    plt.savefig('static/img4.png')
         
 
     ch_perc = {}
     for i in score:
-        if i.chapter_name not in ch_perc:
-            s = Score.query.filter_by(chapter_name=i.chapter_name).first()
-            perc = (s.total_score/s.noq)*100
-            ch_perc[i.chapter_name] = perc
+        ch_perc[i.chapter_name] = (i.total_score/i.noq)*100
         
     chap_name = list(ch_perc.keys())
     percen = list(ch_perc.values())
@@ -763,7 +746,7 @@ def usersummary(u_name):
         lables = ["Full Marks","Partial marks"]
     plt.clf()
     plt.pie(values, autopct='%1.1f%%' ,labels=lables)
-    plt.title("Accuracy in First Attempt")
+    plt.title("Accuracy")
     plt.savefig('static/img2.png')
 
     return render_template('usersummary.html', u_name=u_name,avgt=average_time_taken,attendance=len(attendance))
