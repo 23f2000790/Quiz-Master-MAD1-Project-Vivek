@@ -54,9 +54,13 @@
                         <td>{{s.qdate}}</td>
                         <td>{{s.time_taken}}</td>
                         <td>{{s.total_score}}/{{s.noq}}</td>
-                        <td>
-                          <a href='/view_answers/{{ s.quiz_id }}/{{ u_name }}/{{s.id}}' class="btn btn-primary">View Answers</a>
-                        </td>
+                        {% if not s.qdate == dte %}
+                          <td>
+                            <a href='/view_answers/{{ s.quiz_id }}/{{ u_name }}/{{s.id}}' class="btn btn-primary">View Answers</a>
+                          </td>
+                        {% else %}
+                          <td>You can view answers after the deadline.</td>
+                        {% endif %}
                       </tr>
                     {% endfor %}
                   </tbody>

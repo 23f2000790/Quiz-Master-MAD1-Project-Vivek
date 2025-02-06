@@ -13,6 +13,8 @@ if not user:
     db.session.add(u)
     db.session.commit()
 
+        
+
 @app.route('/', methods=['GET','POST'])
 def Welcome():
     return render_template('welcome.html')
@@ -108,7 +110,7 @@ def user_dashboard():
         emsg = request.args.get('msg')
         return render_template('user_dashboard.html',quizzes=quizzes,u_name=u_name,msg=emsg)
 
-    quizzes = Quiz.query.all()
+    quizzes = Quiz.query.filter(Quiz.date >= date.today()).all()
     return render_template('user_dashboard.html',quizzes=quizzes,u_name=u_name)
 
 @app.route('/scores/<u_name>')
@@ -125,7 +127,8 @@ def scores(u_name):
         return render_template('user_scores.html', u_name=u_name, score=score)
     user = User.query.filter_by(username=u_name).first()
     score = Score.query.filter_by(user_id=user.id)
-    return render_template('user_scores.html', u_name=u_name, score=score)
+    dte = date.today()
+    return render_template('user_scores.html', u_name=u_name, score=score, dte=dte)
 
 @app.route('/admin',methods=['GET','POST'])
 def admin_dashboard():
@@ -344,20 +347,26 @@ def deletequiz(quiz_id):
 @app.route('/editquiz/<int:quiz_id>')
 def editquiz(quiz_id):
     quiz = Quiz.query.filter_by(id=quiz_id).first()
+    if 'msg' in request.args:
+        msg = request.args.get('msg')
+        return render_template('editquiz.html',quiz=quiz,msg=msg)
     return render_template('editquiz.html',quiz=quiz)
 
 @app.route('/editquiz2/<int:quiz_id>/<int:chapter_id>',methods=['GET','POST'])
 def editquiz2(quiz_id,chapter_id):
     if request.form.get('submit') == 'Confirm':
-        date = request.form.get('date')
+        dte = request.form.get('date')
         time = request.form.get('time')
-        if date:
-            datecon = datetime.strptime(date, '%Y-%m-%d').date()
+        if dte:
+            datecon = datetime.strptime(dte, '%Y-%m-%d').date()
+        if datecon and not (datecon >= date.today()):
+            msg = "Please enter a valid date!"
+            return redirect(url_for('editquiz',msg=msg,quiz_id=quiz_id))
         if time:
             timecon = datetime.strptime(time, '%H:%M').time() 
             time_str = timecon.strftime('%H:%M')
         quiz = Quiz.query.filter_by(chapter_id=chapter_id).first()
-        if not date:
+        if not dte:
             quiz.time = time_str
         elif not time:
             quiz.date = datecon
@@ -434,14 +443,30 @@ def startquiztemp(quiz_id,u_name):
         else:
             user = User.query.filter_by(username=u_name).first()
             total_time_taken = str(timedelta(seconds=time_taken))
-            score2 = Score(quiz_id=quiz_id,chapter_name=quiz.chapter.name,noq=noofquestions,qdate=quiz.date,total_score=score,user_id=user.id,time_taken=total_time_taken,selected_answers=user_select)
-            db.session.add(score2)
-            db.session.commit()
+
+            scoreex = Score.query.filter_by(user_id=user.id,quiz_id=quiz.id).first()
+            if scoreex:
+                scoreex.quiz_id = quiz.id
+                scoreex.chapter_name = quiz.chapter.name
+                scoreex.noq = noofquestions
+                scoreex.qdate=quiz.date
+                scoreex.total_score=score
+                scoreex.user_id=user.id
+                scoreex.time_taken=total_time_taken
+                scoreex.selected_answers=user_select
+                db.session.commit()
+            else:
+                score2 = Score(quiz_id=quiz_id,chapter_name=quiz.chapter.name,noq=noofquestions,qdate=quiz.date,total_score=score,user_id=user.id,time_taken=total_time_taken,selected_answers=user_select)
+                db.session.add(score2)
+                db.session.commit()
+
             score3 = Score.query.filter_by(quiz_id=quiz_id,user_id=user.id).order_by(Score.id.desc()).first()
-            for i in questions:
-                userdata = Userdata(user_id=user.id,quiz_id=quiz_id,date=quiz.date,time=quiz.time,chapter_name=quiz.chapter.name,score_id=score3.id,question_id=i.id,title=i.title,question_statement=i.question_statement,option1=i.option1,option2=i.option2,option3=i.option3,option4=i.option4,correct_option=i.correct_option)
-                db.session.add(userdata)
-            db.session.commit()
+            ud2 = Userdata.query.filter_by(user_id=user.id,score_id=score3.id,quiz_id=score3.quiz_id).all()
+            if not ud2:
+                for i in questions:
+                    userdata = Userdata(user_id=user.id,quiz_id=quiz_id,date=quiz.date,time=quiz.time,chapter_name=quiz.chapter.name,score_id=score3.id,question_id=i.id,title=i.title,question_statement=i.question_statement,option1=i.option1,option2=i.option2,option3=i.option3,option4=i.option4,correct_option=i.correct_option)
+                    db.session.add(userdata)
+                db.session.commit()
             score=0
             return redirect(url_for('scores', u_name=u_name,quiz_id=quiz_id,ttt=total_time_taken))
 

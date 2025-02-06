@@ -58,11 +58,7 @@
                     {% for user in users %}
                       <tr>
                         <td>{{ user.fullname }}</td>
-                        {% if user.score|length > q %}
-                          <td>{{q}}/{{q}}</td>
-                        {% else %}
-                          <td>{{ user.score|length }}/{{ q }}</td>
-                        {% endif %}
+                        <td>{{ user.score|length }}</td>
                         <td>
                           <a href='/inspect/{{ user.id }}' class="btn btn-primary">Inspect</a>
                           <a href='/remove/{{user.id}}' class="btn btn-danger">Remove</a>

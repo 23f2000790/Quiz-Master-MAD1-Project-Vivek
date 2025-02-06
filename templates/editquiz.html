@@ -10,6 +10,11 @@
         <div id = "canvas">
             <div id = "form-body">
                 <h1 id="centre-text">You are editing the quiz {{quiz.id}}:{{quiz.chapter.name}}</h1>
+                {% if msg %}
+                    <div class="alert alert-danger text-center">
+                        {{ msg }}
+                    </div>
+                {% endif %}
                 <form action="/editquiz2/{{quiz.id}}/{{quiz.chapter.id}}" method="post">
                     <div class="mb-3">
                         <label for="date" class="form-label">Date</label>
