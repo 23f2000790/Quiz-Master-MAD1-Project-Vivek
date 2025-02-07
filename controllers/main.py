@@ -139,10 +139,10 @@ def admin_dashboard():
             ids.append(int(obj))
         subjects = Subject.query.filter(Subject.id.in_(ids)).all()
         return render_template('admin_dashboard.html',subjects=subjects)
-    elif 'emsg' in request.args:
-        emsg = request.args.get('emsg')
-        return render_template('admin_dashboard.html',subjects=[],emsg=emsg)
     subjects = Subject.query.all()
+    if 'emsg' in request.args:
+        emsg = request.args.get('emsg')
+        return render_template('admin_dashboard.html',subjects=subjects,emsg=emsg)
     if subjects:
         return render_template('admin_dashboard.html',subjects=subjects)
     else:
@@ -245,11 +245,14 @@ def quizmantemp():
             ids.append(int(obj))
         quizes = Quiz.query.filter(Quiz.chapter_id.in_(ids)).all()
         return render_template('quiz_management.html',quizes=quizes)
-    elif 'emsg' in request.args:
+    quizes = Quiz.query.filter(Quiz.date >= date.today()).all()
+    if 'emsg' in request.args:
         emsg = request.args.get('emsg')
-        return render_template('quiz_management.html',quizes=[],emsg=emsg)
-    quizes = Quiz.query.all()
+        return render_template('quiz_management.html',quizes=quizes,emsg=emsg)
     if quizes:
+        if 'statusmsg' in request.args:
+            emsg = request.args.get('statusmsg')
+            return render_template('quiz_management.html',quizes=quizes,emsg=emsg)
         return render_template('quiz_management.html',quizes=quizes)
     else:
         return render_template('quiz_management.html',quizes=[])
@@ -326,7 +329,7 @@ def add_question(quiz_id):
         if o1 in [o2, o3, o4] or o2 in [o3, o4] or o3 == o4:
             emsg = "No 2 or more options can be same"
             return redirect(url_for('add_question',emsg=emsg, quiz_id=quiz_id))
-        if co not in [1,2,3,4]:
+        if int(co) not in [1,2,3,4]:
             emsg = "valid correct options - 1,2,3,4!"
             return redirect(url_for('add_question',emsg=emsg, quiz_id=quiz_id))
         new_question = Question(quiz_id=quiz_id,question_id=id,title=title,question_statement=qst,option1=o1,option2=o2,option3=o3,option4=o4,correct_option=co)
@@ -472,7 +475,15 @@ def startquiztemp(quiz_id,u_name):
 
             score3 = Score.query.filter_by(quiz_id=quiz_id,user_id=user.id).order_by(Score.id.desc()).first()
             ud2 = Userdata.query.filter_by(user_id=user.id,score_id=score3.id,quiz_id=score3.quiz_id).all()
-            if not ud2:
+            if ud2:
+                for i in ud2:
+                    db.session.delete(i)
+                db.session.commit()
+                for i in questions:
+                    userdata = Userdata(user_id=user.id,quiz_id=quiz_id,date=quiz.date,time=quiz.time,chapter_name=quiz.chapter.name,score_id=score3.id,question_id=i.id,title=i.title,question_statement=i.question_statement,option1=i.option1,option2=i.option2,option3=i.option3,option4=i.option4,correct_option=i.correct_option)
+                    db.session.add(userdata)
+                db.session.commit()               
+            else:
                 for i in questions:
                     userdata = Userdata(user_id=user.id,quiz_id=quiz_id,date=quiz.date,time=quiz.time,chapter_name=quiz.chapter.name,score_id=score3.id,question_id=i.id,title=i.title,question_statement=i.question_statement,option1=i.option1,option2=i.option2,option3=i.option3,option4=i.option4,correct_option=i.correct_option)
                     db.session.add(userdata)
@@ -523,6 +534,10 @@ def editsubject2(subject_id):
 @app.route('/editquestion/<int:question_id>/<int:quiz_id>',methods=['GET','POST'])
 def editquestion(question_id,quiz_id):
     question = Question.query.filter_by(question_id=question_id,quiz_id=quiz_id).first()
+    quiz = Quiz.query.filter_by(id=quiz_id).first()
+    if quiz.status == 'active':
+        msg = "Questions of an active quiz cannot be edited!"
+        return redirect(url_for('quizmantemp',statusmsg=msg))
     if 'emsg' in request.args:
         emsg = request.args.get('emsg')
         return render_template('edit_question.html',question=question, quiz_id=quiz_id,emsg=emsg)
@@ -554,7 +569,7 @@ def edit_question(question_id,quiz_id):
         if o1 or o2 or o3 or o4:
             emsg = "Please give entries for all options"
             return redirect(url_for('editquestion',emsg=emsg, quiz_id=quiz_id,question_id=question_id))
-    if co not in [1,2,3,4]:
+    if int(co) not in [1,2,3,4]:
         emsg = "valid correct options - 1,2,3,4!"
         return redirect(url_for('editquestion',emsg=emsg, quiz_id=quiz_id,question_id=question_id))
     
@@ -628,6 +643,7 @@ def viewanswers(quiz_id,u_name,score_id):
     L=[]
     for i in score.selected_answers:
         L.append(int(i))
+    print(L)
     return render_template('view_answers.html',quiz=quiz,questions=userdata,u_name=u_name,L=L,subquiz_id=subquiz_id,chaptername=chaptername,score=score)
 
 @app.route('/inspect/<int:user_id>')
@@ -681,15 +697,21 @@ def reapprove(user_id):
 @app.route('/summary/<u_name>')
 def usersummary(u_name):
     user = User.query.filter_by(username=u_name).first()
-    score = Score.query.filter_by(user_id=user.id).all()
+    scorelist = Score.query.filter_by(user_id=user.id).all()
 
+    if scorelist:
+        score = Score.query.filter(Score.user_id==user.id, Score.qdate < date.today()).all()
+        if not score:
+            message = "Available after deadline passes!"
+            return render_template('usersummary.html',msg=message,u_name=u_name)
+    if not scorelist:
+        message = "Please Attempt some quizzes to get summary!"
+        return render_template('usersummary.html',msg=message,u_name=u_name)
+        
     attendance = Score.query.filter_by(user_id=user.id).all()
     
     avgtime = []
     name_time = {}
-    if not score:
-        message = "Please Attempt some quizzes to get summary!"
-        return render_template('usersummary.html',msg=message,u_name=u_name)
     for i in score:
         obj = datetime.strptime(i.time_taken, "%H:%M:%S")
         sec = obj.hour*3600 + obj.minute*60 + obj.second
@@ -723,27 +745,23 @@ def usersummary(u_name):
     plt.title("Percentage scored in each Quiz")
     plt.savefig('static/img.png')
 
-    count = 0
-    total_count = 0
-    full_score = {}
-    for i in score:
-        chapter = i.chapter_name
-        marks = i.total_score
-        if chapter not in full_score:
-            total_count += 1
-            full_score[chapter] = marks
-            if marks == i.noq:
-                count += 1
 
-    if count == 0:
-        values = [total_count-count]
-        lables = ["Partial marks"]
-    elif total_count-count == 0:
-        values = [count]
-        lables = ["Full marks"]
+    accuracy = 0
+    inaccuracy = 0
+    for i in score:
+        accuracy += i.total_score
+        inaccuracy += i.noq-i.total_score
+    
+
+    if accuracy == 0:
+        values = [inaccuracy]
+        lables = ["All Incorrect answers!"]
+    elif inaccuracy == 0:
+        values = [accuracy]
+        lables = ["All Correct answers :)"]
     else:
-        values = [count,total_count-count]
-        lables = ["Full Marks","Partial marks"]
+        values = [accuracy,inaccuracy]
+        lables = ["Correct Answers","Incorrect Answers"]
     plt.clf()
     plt.pie(values, autopct='%1.1f%%' ,labels=lables)
     plt.title("Accuracy")
@@ -822,7 +840,7 @@ def adminsearch():
         for i in subject:
             st += str(i.id)
         return redirect(url_for('admin_dashboard',subject=st))
-    emsg = "No results found"
+    emsg = "No results found for: " +searchword
     return redirect(url_for('admin_dashboard',emsg=emsg))
 
 @app.route('/adminsearch/qm')
@@ -835,7 +853,7 @@ def adminsearchqm():
         for i in chapter:
             st += str(i.id)
         return redirect(url_for('quizmantemp',chapter=st))
-    emsg = "No results found"
+    emsg = "No results found for: " + searchword
     return redirect(url_for('quizmantemp',emsg=emsg))
 
 
@@ -946,3 +964,36 @@ def usersearchscore(u_name):
     if not score and not dte:
         errormsg = "No information found for: "+search_word
         return redirect(url_for('scores',msg=errormsg,u_name=u_name))
+    
+
+@app.route('/history')
+def history():
+    if 'chapter' in request.args:
+        chapter = request.args.get('chapter')
+        ids = []
+        for obj in chapter:
+            ids.append(int(obj))
+        quizes = Quiz.query.filter(Quiz.chapter_id.in_(ids), Quiz.date < date.today()).all()
+        return render_template('quiz_history.html',quizes=quizes)
+    quizes = Quiz.query.filter(Quiz.date < date.today()).all()
+    if 'emsg' in request.args:
+        emsg = request.args.get('emsg')
+        return render_template('quiz_history.html',quizes=quizes,emsg=emsg)
+    if quizes:
+        return render_template('quiz_history.html',quizes=quizes)
+    else:
+        return render_template('quiz_history.html',quizes=[])
+    
+
+@app.route('/adminsearch/hst')
+def adminsearchhst():
+    searchword = request.args.get('search_word')
+    sw = "%" + searchword.lower() +"%"
+    chapter = Chapter.query.filter(Chapter.name.like(sw)).all()
+    if chapter:
+        st = ''
+        for i in chapter:
+            st += str(i.id)
+        return redirect(url_for('history',chapter=st))
+    emsg = "No results found for: " + searchword
+    return redirect(url_for('history',emsg=emsg))

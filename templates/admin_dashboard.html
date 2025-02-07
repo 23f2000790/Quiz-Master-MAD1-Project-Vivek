@@ -19,6 +19,9 @@
                         <a class="nav-link active" aria-current="page" href="/quizmantemp">Quiz</a>
                       </li>
                       <li class="nav-item">
+                        <a class="nav-link active" aria-current="page" href="/history">History</a>
+                      </li>
+                      <li class="nav-item">
                         <a class="nav-link active" aria-current="page" href="/challengeque">Challenge</a>
                       </li>
                       <li class="nav-item">
@@ -42,7 +45,11 @@
                   <span>&ensp; Welcome Admin</span>
                 </div>
               </nav>
-              
+              {% if emsg %}
+              <div class="alert alert-danger text-center">
+                <p>{{emsg}}</p>
+              </div>
+              {% endif %}
               <div class="container">
                 {% if subjects %}
                 <div class="row">
@@ -88,11 +95,6 @@
               {% if not subjects and not emsg %}
               <div class="alert alert-primary text-center">
                 <p>No subjects available. Please add a new subject.</p>
-              </div>
-              {% endif %}
-              {% if emsg %}
-              <div class="alert alert-danger text-center">
-                <p>{{emsg}}</p>
               </div>
               {% endif %}
               <div class="text-center">
