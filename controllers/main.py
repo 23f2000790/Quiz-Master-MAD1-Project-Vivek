@@ -17,6 +17,11 @@ def Welcome():
         u = User(username='admin',password='admin',fullname='admin',qualification='admin',dob=dte,type='admin')
         db.session.add(u)
         db.session.commit()
+    past_quiz = Quiz.query.filter(Quiz.date < date.today()).all()
+    if past_quiz:
+        for i in past_quiz:
+            i.status = 'expired'
+        db.session.commit()
     return render_template('welcome.html')
 
 
@@ -178,12 +183,12 @@ def add_subject():
 
 @app.route('/addchapter/<int:subject_id>',methods=['GET'])
 def addchapter(subject_id):
-    subject = Subject.query.get_or_404(subject_id)
+    subject = Subject.query.filter_by(id=subject_id).first()
     return render_template('add_chapter.html',subject=subject)
 
 @app.route('/addchapter2/<int:subject_id>',methods=['POST'])
 def add_chapter(subject_id):
-    subject = Subject.query.get_or_404(subject_id)
+    subject = Subject.query.filter_by(id=subject_id).first()
     if request.form.get('submit') == "Cancel":
         return redirect(url_for('admin_dashboard'))
     name = request.form.get('name')
@@ -195,12 +200,12 @@ def add_chapter(subject_id):
 
 @app.route('/editchapter/<int:chapter_id>',methods=['GET','POST'])
 def editchapter(chapter_id):
-    chapter = Chapter.query.get_or_404(chapter_id)
+    chapter = Chapter.query.filter_by(id=chapter_id).first()
     return render_template('edit_chapter.html',chapter=chapter)
 
 @app.route('/editchapter2/<int:chapter_id>',methods=['POST'])
 def edit_chapter(chapter_id):
-    chapter = Chapter.query.get_or_404(chapter_id)
+    chapter = Chapter.query.filter_by(id=chapter_id).first()
     if request.form.get('submit') == "Cancel":
         return redirect(url_for('admin_dashboard'))
     name = request.form.get('name')
@@ -217,24 +222,19 @@ def edit_chapter(chapter_id):
 
 @app.route('/deletechapter/<int:chapter_id>',methods=['GET','POST'])
 def deletechapter(chapter_id):
-    chapter = Chapter.query.get_or_404(chapter_id)
-    quiz = Quiz.query.filter_by(chapter_id=chapter_id).first()
+    chapter = Chapter.query.filter_by(id=chapter_id).first()
+    quiz = Quiz.query.filter_by(chapter_id=chapter_id).all()
     if quiz:
-        questions = Question.query.filter_by(quiz_id=quiz.id)
-        if questions:
-            for question in questions:
-                db.session.delete(question)
-        db.session.delete(quiz)
+        for i in quiz:
+            questions = Question.query.filter_by(quiz_id=i.id)
+            if questions:
+                for question in questions:
+                    db.session.delete(question)
+            db.session.delete(i)
     db.session.delete(chapter)
     db.session.commit()
     return redirect(url_for('admin_dashboard'))
 
-@app.route('/addquiz')
-def addquiz():
-    if 'emsg' in request.args:
-        emsg = request.args.get('emsg')
-        return render_template('add_quiz.html',emsg=emsg)
-    return render_template('add_quiz.html')
 
 @app.route('/quizmantemp')
 def quizmantemp():
@@ -257,6 +257,13 @@ def quizmantemp():
     else:
         return render_template('quiz_management.html',quizes=[])
     
+@app.route('/addquiz')
+def addquiz():
+    if 'emsg' in request.args:
+        emsg = request.args.get('emsg')
+        return render_template('add_quiz.html',emsg=emsg)
+    return render_template('add_quiz.html')
+    
 @app.route('/quizman',methods=['GET','POST'])
 def quizman():
     if request.method == "POST":
@@ -278,13 +285,9 @@ def quizman():
         datecon = datetime.strptime(dte, '%Y-%m-%d').date()
         timecon = datetime.strptime(time, '%H:%M').time() 
         time_str = timecon.strftime('%H:%M')
-        quiz = Quiz.query.filter_by(chapter_id=chapter_id).first()
         chapter = Chapter.query.get(chapter_id)
         if not chapter_id:
             emsg = "Please give id to the Chapter before Adding!"
-            return redirect(url_for('addquiz',emsg=emsg))
-        if  quiz:
-            emsg = "Chapter Already Exists :("
             return redirect(url_for('addquiz',emsg=emsg))
         if not chapter:
             emsg = "The specified Chapter ID does not exist!"
@@ -298,8 +301,8 @@ def quizman():
             db.session.add(quiz2)
             db.session.commit() 
             quizes = Quiz.query.all()
-            return render_template('quiz_management.html',quizes=quizes)
-    return redirect('quiz_management.html')
+            return redirect(url_for('quizmantemp'))
+    return redirect(url_for('quizmantemp'))
 
 
 
@@ -343,7 +346,7 @@ def add_question(quiz_id):
 
 @app.route('/deletequestion/<int:question_id>',methods=['GET','POST'])
 def deletequestion(question_id):
-    question = Question.query.get_or_404(question_id)
+    question = Question.query.filter_by(id=question_id).first()
     db.session.delete(question)
     db.session.commit()
     return redirect(url_for('quizmantemp'))
@@ -353,7 +356,7 @@ def deletequiz(quiz_id):
     questions = Question.query.filter_by(quiz_id=quiz_id)
     for question in questions:
         db.session.delete(question)
-    quiz = Quiz.query.get_or_404(quiz_id)
+    quiz = Quiz.query.filter_by(id=quiz_id).first()
     db.session.delete(quiz)
     db.session.commit()
     return redirect(url_for('quizmantemp'))
@@ -499,15 +502,16 @@ def startquiztemp(quiz_id,u_name):
 def deletesubject(subject_id):
     chapters = Chapter.query.filter_by(subject_id=subject_id)
     for chapter in chapters:
-        quiz = Quiz.query.filter_by(chapter_id=chapter.id).first()
+        quiz = Quiz.query.filter_by(chapter_id=chapter.id).all()
         if quiz:
-            questions = Question.query.filter_by(quiz_id=quiz.id)
-            if questions:
-                for q in questions:
-                    db.session.delete(q)
-            db.session.delete(quiz)
+            for i in quiz:
+                questions = Question.query.filter_by(quiz_id=i.id)
+                if questions:
+                    for q in questions:
+                        db.session.delete(q)
+                db.session.delete(i)
         db.session.delete(chapter)
-    subject = Subject.query.get_or_404(subject_id)
+    subject = Subject.query.filter_by(id=subject_id).first()
     db.session.delete(subject)
     db.session.commit()
     return redirect(url_for('admin_dashboard'))
