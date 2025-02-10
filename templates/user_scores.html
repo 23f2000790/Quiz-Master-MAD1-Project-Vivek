@@ -64,6 +64,15 @@
                         {% endif %}
                       </tr>
                     {% endfor %}
+                    {% if msg %}
+                    <tr>  
+                      <td colspan="6">
+                        <div class="alert alert-danger text-center">
+                          {{ msg }}
+                        </div>
+                      </td>
+                    </tr>
+                    {% endif %}
                   </tbody>
                 </table>
               </div>

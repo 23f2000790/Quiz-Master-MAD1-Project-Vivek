@@ -133,6 +133,9 @@ def scores(u_name):
         return render_template('user_scores.html', u_name=u_name, score=score,dte=dte)
     user = User.query.filter_by(username=u_name).first()
     score = Score.query.filter_by(user_id=user.id)
+    if 'msg' in request.args:
+        msg = request.args.get('msg')
+        return render_template('user_scores.html', u_name=u_name, score=score, msg=msg, dte=dte)
     return render_template('user_scores.html', u_name=u_name, score=score, dte=dte)
 
 @app.route('/admin',methods=['GET','POST'])
@@ -573,9 +576,10 @@ def edit_question(question_id,quiz_id):
         if o1 or o2 or o3 or o4:
             emsg = "Please give entries for all options"
             return redirect(url_for('editquestion',emsg=emsg, quiz_id=quiz_id,question_id=question_id))
-    if int(co) not in [1,2,3,4]:
-        emsg = "valid correct options - 1,2,3,4!"
-        return redirect(url_for('editquestion',emsg=emsg, quiz_id=quiz_id,question_id=question_id))
+    if co:
+        if int(co) not in [1,2,3,4]:
+            emsg = "valid correct options - 1,2,3,4!"
+            return redirect(url_for('editquestion',emsg=emsg, quiz_id=quiz_id,question_id=question_id))
     
     if title:
         question.title = title
@@ -897,10 +901,13 @@ def adminsummary():
     plt.xlabel("Users")
     plt.ylabel("No. of quiz attempted")
     plt.title("Attendance of quiz")
+    plt.xticks(rotation=10)
     plt.savefig('static/adimg1.png')
 
-    
-    score = Score.query.filter_by().all()
+    user_ids = []
+    for i in user:
+        user_ids.append(i.id)
+    score = Score.query.filter(Score.user_id.in_(user_ids)).all()
     chapter_time = {}
     for i in score:
         obj = datetime.strptime(i.time_taken, "%H:%M:%S")
@@ -923,6 +930,7 @@ def adminsummary():
     plt.xlabel("Chapter Name")
     plt.ylabel("Time Taken(Seconds)")
     plt.title(" Average time taken for each chapter")
+    plt.xticks(rotation=10)
     plt.savefig('static/adimg2.png')
 
 
@@ -947,8 +955,12 @@ def adminsummary():
     plt.xlabel("User Name")
     plt.ylabel("Percentage")
     plt.title("Average percentage in all quizzes")
+    plt.xticks(rotation=10)
     plt.savefig('static/adimg3.png')
 
+    if not score:
+        msg = 'no user has attempted any quizzes'
+        return render_template('adminsummary.html',msg=msg)
     return render_template('adminsummary.html')
 
 
