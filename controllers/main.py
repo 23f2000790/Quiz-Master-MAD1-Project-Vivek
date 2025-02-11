@@ -101,7 +101,7 @@ def user_dashboard():
         ids = []
         for obj in subject:
             ids.append(int(obj))
-        quizzes = Quiz.query.filter(Quiz.chapter.has(Chapter.subject_id.in_(ids), Quiz.status == 'active')).all()
+        quizzes = Quiz.query.filter(Quiz.chapter.has(Chapter.subject_id.in_(ids)), Quiz.status == 'active').all()
         return render_template('user_dashboard.html',quizzes=quizzes,u_name=u_name)
     
     if 'quiz_date' in request.args:
