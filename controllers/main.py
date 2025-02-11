@@ -890,6 +890,9 @@ def adminsearchbin():
 @app.route('/adminsummary')
 def adminsummary():
     user = User.query.filter_by(type='user').all()
+    aquiz = Quiz.query.filter(Quiz.status == 'active').all()
+    iquiz = Quiz.query.filter(Quiz.status == 'inactive').all()
+    equiz = Quiz.query.filter(Quiz.status == 'expired').all()
     no_of_quiz = {}
     for i in user:
         score = Score.query.filter_by(user_id=i.id).order_by(Score.id.asc()).group_by(Score.quiz_id).all()
@@ -901,7 +904,7 @@ def adminsummary():
     plt.xlabel("Users")
     plt.ylabel("No. of quiz attempted")
     plt.title("Attendance of quiz")
-    plt.xticks(rotation=10)
+    plt.xticks(rotation=5)
     plt.savefig('static/adimg1.png')
 
     user_ids = []
@@ -930,7 +933,7 @@ def adminsummary():
     plt.xlabel("Chapter Name")
     plt.ylabel("Time Taken(Seconds)")
     plt.title(" Average time taken for each chapter")
-    plt.xticks(rotation=10)
+    plt.xticks(rotation=5)
     plt.savefig('static/adimg2.png')
 
 
@@ -955,13 +958,13 @@ def adminsummary():
     plt.xlabel("User Name")
     plt.ylabel("Percentage")
     plt.title("Average percentage in all quizzes")
-    plt.xticks(rotation=10)
+    plt.xticks(rotation=5)
     plt.savefig('static/adimg3.png')
 
     if not score:
         msg = 'no user has attempted any quizzes'
-        return render_template('adminsummary.html',msg=msg)
-    return render_template('adminsummary.html')
+        return render_template('adminsummary.html',msg=msg,users = len(user),aq = len(aquiz),iq = len(iquiz),eq = len(equiz))
+    return render_template('adminsummary.html',users = len(user),aq = len(aquiz),iq = len(iquiz),eq = len(equiz))
 
 
 
@@ -1013,3 +1016,19 @@ def adminsearchhst():
         return redirect(url_for('history',chapter=st))
     emsg = "No results found for: " + searchword
     return redirect(url_for('history',emsg=emsg))
+
+
+@app.route('/view_question/<int:q_id>')
+def viewques(q_id):
+    question = Question.query.filter_by(id=q_id).first()
+    return render_template('view_question.html',q = question)
+
+@app.route('/viewpastque/<int:q_id>')
+def viewpastque(q_id):
+    question = Question.query.filter_by(id=q_id).first()
+    return render_template('viewpastque.html',q = question)
+
+@app.route('/user_profile/<u_name>')
+def user_profile(u_name):
+    user = User.query.filter_by(username=u_name).first()
+    return render_template('user_profile.html',user=user,u_name=u_name)

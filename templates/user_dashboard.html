@@ -13,7 +13,10 @@
                   <div class="collapse navbar-collapse" id="navbarSupportedContent">
                     <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                       <li class="nav-item">
-                        <a class="nav-link active" aria-current="page" href="/user_dashboard?u_name={{ u_name }}">Home</a>
+                        <a class="nav-link active" aria-current="page" href="/user_profile/{{ u_name }}">Profile</a>
+                      </li>
+                      <li class="nav-item">
+                        <a class="nav-link active" aria-current="page" href="/user_dashboard?u_name={{ u_name }}">Quiz</a>
                       </li>
                       <li class="nav-item">
                         <a class="nav-link active" aria-current="page" href="/scores/{{ u_name }}">Scores</a>
@@ -41,8 +44,8 @@
                       <th scope="col">Subject Name</th>
                       <th scope ="col">Chapter Name</th>
                       <th scope="col">No. of Questions</th>
-                      <th scope="col">Date</th>
-                      <th scope="col">Duration(hh:mm:ss)</th>
+                      <th scope="col">Deadline</th>
+                      <th scope="col">Duration(hh:mm)</th>
                       <th scope="col">Action</th>
                     </tr>
                   </thead>
