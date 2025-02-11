@@ -93,7 +93,7 @@ def user_dashboard():
         ids = []
         for obj in chapter:
             ids.append(int(obj))
-        quizzes = Quiz.query.filter(Quiz.chapter_id.in_(ids)).all()
+        quizzes = Quiz.query.filter(Quiz.chapter_id.in_(ids), Quiz.status == 'active').all()
         return render_template('user_dashboard.html',quizzes=quizzes,u_name=u_name)
     
     if 'subject' in request.args:
@@ -101,21 +101,20 @@ def user_dashboard():
         ids = []
         for obj in subject:
             ids.append(int(obj))
-        quizzes = Quiz.query.filter(Quiz.chapter.has(Chapter.subject_id.in_(ids))).all()
+        quizzes = Quiz.query.filter(Quiz.chapter.has(Chapter.subject_id.in_(ids), Quiz.status == 'active')).all()
         return render_template('user_dashboard.html',quizzes=quizzes,u_name=u_name)
     
     if 'quiz_date' in request.args:
         quiz_date = request.args.get('quiz_date')
         dts = quiz_date.split(',')
-        quizzes = Quiz.query.filter(Quiz.date.in_(dts)).all()
+        quizzes = Quiz.query.filter(Quiz.date.in_(dts), Quiz.status == 'active').all()
         return render_template('user_dashboard.html',quizzes=quizzes,u_name=u_name)
     
+    quizzes = Quiz.query.filter(Quiz.date >= date.today(), Quiz.status=='active').all()
     if 'msg' in request.args:
-        quizzes = Quiz.query.all()
         emsg = request.args.get('msg')
         return render_template('user_dashboard.html',quizzes=quizzes,u_name=u_name,msg=emsg)
 
-    quizzes = Quiz.query.filter(Quiz.date >= date.today(), Quiz.status=='active').all()
     return render_template('user_dashboard.html',quizzes=quizzes,u_name=u_name)
 
 @app.route('/scores/<u_name>')
