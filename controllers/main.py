@@ -391,9 +391,9 @@ def editquiz2(quiz_id,chapter_id):
         quiz = Quiz.query.filter_by(chapter_id=chapter_id).first()
         if dte:
             quiz.date = datecon
-        elif time:
+        if time:
             quiz.time = time_str
-        elif status:
+        if status:
             quiz.status = status
         db.session.commit()
         return redirect(url_for('quizmantemp'))
@@ -583,9 +583,9 @@ def edit_question(question_id,quiz_id):
     
     if title:
         question.title = title
-    elif qst:
+    if qst:
         question.question_statement = qst
-    elif co:
+    if co:
         question.correct_option = co
 
     db.session.commit()
