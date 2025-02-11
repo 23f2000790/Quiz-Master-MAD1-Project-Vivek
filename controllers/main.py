@@ -344,6 +344,10 @@ def add_question(quiz_id):
     if 'emsg' in request.args:
         emsg = request.args.get('emsg')
         return render_template('add_question.html',emsg=emsg, quiz_id=quiz_id)
+    quiz = Quiz.query.filter_by(id=quiz_id).first()
+    if quiz.status == 'active':
+        msg = "Cannot add questions to an active quiz!"
+        return redirect(url_for('quizmantemp',statusmsg=msg))
     return render_template('add_question.html', quiz_id=quiz_id)
 
 @app.route('/deletequestion/<int:question_id>',methods=['GET','POST'])
